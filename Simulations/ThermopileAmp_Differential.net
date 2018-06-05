@@ -1,0 +1,31 @@
+* C:\Users\You\Documents\Project-Dyson\Simulations\ThermopileAmp_Differential.asc
+XU1 N007 N002 N003 V+ 0 LTC2054
+R1 N003 N002 {mc(Rf,tol_r)}
+R2 N002 0 {mc(Rg,tol_r)}
+R3 N007 N008 {mc(R1,tol_r)}
+R4 N010 N007 {mc(R2,tol_r)}
+R5 N003 0 100k
+V1 VRef 0 {mc(1.8,4e-4)}
+V2 N005 0 {mc(5, tol_vcc)} AC 100e-6
+V3 N006 0 {mc(-5,tol_vcc)} AC 100e-6
+V4 N004 N009 {flat(3e-6)}
+V5 N009 0 3e-3 Rser=60k
+XU2 N004 N001 N001 V+ V- LTC2054
+V6 N008 N001 {flat(3e-6)}
+V7 V+ N005 SINE(0 100e-6 50k)
+V8 V- N006 SINE(0 100e-6 50k 0 0 180)
+XU3 N011 N010 N010 V+ 0 LTC2054
+R6 VRef N011 {mc(R2,tol_r)}
+R7 N011 0 {mc(R2,tol_r)}
+.param tol_r = 0.001
+.param tol_c = 0.1
+.param tol_vcc = 0.05
+.param R1 = 1k
+.param R2 = 100k
+.param Rf = 100k
+.param Rg = 1k
+.step param run 1 100 1
+.tran 10e-3
+.lib LTC2.LIB
+.backanno
+.end

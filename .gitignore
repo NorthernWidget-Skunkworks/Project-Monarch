@@ -4,9 +4,6 @@
 *.s#?
 *.b#?
 *.l#?
-*.b$?
-*.s$?
-*.l$?
 
 # Eagle project file
 # It contains a serial number and references to the file structure
@@ -34,15 +31,9 @@ eagle.epf
 *.drl
 *.gpi
 *.pls
-*.ger
-*.gpi
-*.xln
 
 *.drd
 *.drd.*
-
-*.s#*
-*.b#*
 
 *.info
 
@@ -50,3 +41,4 @@ eagle.epf
 
 # file locks introduced since 7.x
 *.lck
+

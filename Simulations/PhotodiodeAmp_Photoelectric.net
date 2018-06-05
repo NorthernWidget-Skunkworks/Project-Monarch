@@ -1,0 +1,33 @@
+* C:\Users\You\Documents\Project-Dyson\Simulations\PhotodiodeAmp_Photoelectric.asc
+D1 N005 N001 D
+I2 N001 N005 {I_D}
+C1 N005 N001 {Cj}
+R1 N005 N001 {Rsh}
+R2 0 N005 {Rs}
+XU1 N004 N003 N002 VCC 0 LTC2054
+R3 N003 N001 {mc(R1,tol_R)}
+C2 N002 N003 {mc(C1,tol_c)}
+R4 N002 N001 {mc(R2,tol_r)}
+R5 OUT N002 {mc(R3,tol_r)}
+C3 OUT 0 {mc(C2,tol_r)}
+V1 VCC 0 {mc(3.3,tol_vcc)}
+V2 N004 0 {flat(3e-6)}
+I1 N001 N005 1.59e-6
+.model D D
+.lib C:\Users\You\Documents\LTspiceXVII\lib\cmp\standard.dio
+.param I_D = 0.01e-9
+.param Cj = 3.8e-12
+.param Rsh = 2e9
+.param Rs = 1e-6
+.dc I1 0 50e-6 1e-9
+.param tol_r = 0.001
+.param tol_c = 0.2
+.param tol_vcc = 0.05
+.param R1 = 1k
+.param R2 = 49.9k
+.param R3 = 2k
+.param C1 = 0.15e-6
+.param C2 = 0.01e-6
+.lib LTC2.LIB
+.backanno
+.end
