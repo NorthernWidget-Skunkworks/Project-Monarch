@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="8.5.1">
+<eagle version="9.0.1">
 <drawing>
 <settings>
-<setting alwaysvectorfont="no"/>
+<setting alwaysvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
 <grid distance="50" unitdist="mil" unit="mm" style="lines" multiple="1" display="no" altdistance="5" altunitdist="mil" altunit="mm"/>
@@ -173,11 +173,11 @@
 <text x="34.163" y="10.541" size="0.8128" layer="52" font="vector" ratio="15" rot="SMR270" align="center">3.3v~5v</text>
 <text x="32.766" y="10.541" size="0.8128" layer="52" font="vector" ratio="15" rot="SMR270" align="center">To Logger</text>
 <text x="11.557" y="4.191" size="0.8128" layer="52" font="vector" ratio="15" rot="MR0" align="center">J0</text>
-<text x="14.097" y="2.667" size="0.8128" layer="52" font="vector" ratio="15" rot="MR0" align="center">0x74</text>
-<text x="14.097" y="1.016" size="0.8128" layer="52" font="vector" ratio="15" rot="MR0" align="center">0x75</text>
+<text x="14.097" y="2.667" size="0.8128" layer="52" font="vector" ratio="15" rot="MR0" align="center">0x4A</text>
+<text x="14.097" y="1.016" size="0.8128" layer="52" font="vector" ratio="15" rot="MR0" align="center">0x4B</text>
 <text x="8.509" y="1.905" size="0.8128" layer="52" font="vector" ratio="15" rot="SMR270" align="center">ADR
 Select</text>
-<text x="17.145" y="12.827" size="0.8128" layer="52" font="vector" ratio="15" rot="MR0" align="center-left">Project Dyson v0.0
+<text x="17.145" y="12.827" size="0.8128" layer="52" font="vector" ratio="15" rot="MR0" align="center-left">Project Dyson v0.1
 LongWave
 ----------------
 Developed by 
@@ -257,8 +257,8 @@ University of Minnesota</text>
 <package name="TO-46">
 <pad name="THERMOPILE_GND" x="-0.898" y="-0.898" drill="0.8128" shape="square"/>
 <pad name="THERMISTOR_GND" x="0.898" y="-0.898" drill="0.8128" shape="square"/>
-<pad name="THERMOPILE+" x="-0.898" y="0.898" drill="0.8128"/>
-<pad name="THEMRISTOR+" x="0.898" y="0.898" drill="0.8128"/>
+<pad name="THERMISTOR+" x="-0.898" y="0.898" drill="0.8128"/>
+<pad name="THERMOPILE+" x="0.898" y="0.898" drill="0.8128"/>
 <circle x="0" y="0" radius="2.7" width="0.127" layer="21"/>
 <wire x1="2.667" y1="0.5" x2="3.667" y2="0.5" width="0.127" layer="21"/>
 <wire x1="3.667" y1="0.5" x2="3.667" y2="-0.5" width="0.127" layer="21"/>
@@ -448,6 +448,9 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </packages>
 <packages3d>
 <package3d name="SMT-JUMPER_3_1-NC_PASTE_SILK" urn="urn:adsk.eagle:package:39293/1" type="box" library_version="1">
+<packageinstances>
+<packageinstance name="SMT-JUMPER_3_1-NC_PASTE_SILK"/>
+</packageinstances>
 </package3d>
 </packages3d>
 </library>
@@ -832,7 +835,11 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <attribute name="MF" value="" x="12.7" y="15.494" size="1.778" layer="27" display="off"/>
 <attribute name="MPN" value="" x="12.7" y="15.494" size="1.778" layer="27" display="off"/>
 </element>
-<element name="J1" library="bschulz" package="1X04_SCREW" value="CONN_42.54_SCREW" x="35.941" y="10.541" rot="R90"/>
+<element name="J1" library="bschulz" package="1X04_SCREW" value="CONN_42.54_SCREW" x="35.941" y="10.541" rot="R90">
+<attribute name="DIGIKEY" value="ED10563-ND" x="35.941" y="10.541" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="MF" value="On Shore" x="35.941" y="10.541" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="MPN" value="OSTVN04A150" x="35.941" y="10.541" size="1.778" layer="27" rot="R90" display="off"/>
+</element>
 <element name="JP1" library="SparkFun-Jumpers" library_urn="urn:adsk.eagle:library:528" package="SMT-JUMPER_3_1-NC_PASTE_SILK" package3d_urn="urn:adsk.eagle:package:39293/1" value="JUMPER-SMT_3_1-NC_PASTE_SILK" x="11.557" y="1.905" rot="MR90"/>
 <element name="H1" library="bschulz" package="2_56" value="2-56" x="2.286" y="14.605"/>
 <element name="H2" library="bschulz" package="2_56" value="2-56" x="2.286" y="2.286"/>
@@ -842,11 +849,14 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <signal name="THERMOPILE+">
 <contactref element="U$1" pad="THERMOPILE+"/>
 <contactref element="U$3" pad="3"/>
-<wire x1="14.05" y1="10.348" x2="18.077" y2="10.348" width="0.4064" layer="1"/>
-<wire x1="18.077" y1="10.348" x2="18.152" y2="10.423" width="0.4064" layer="1"/>
+<wire x1="14.05" y1="10.348" x2="15.555" y2="10.348" width="0.4064" layer="1"/>
+<wire x1="19.948" y1="11.167" x2="19.948" y2="10.423" width="0.4064" layer="1"/>
+<wire x1="15.555" y1="10.348" x2="16.637" y2="11.43" width="0.4064" layer="1"/>
+<wire x1="16.637" y1="11.43" x2="19.685" y2="11.43" width="0.4064" layer="1"/>
+<wire x1="19.685" y1="11.43" x2="19.948" y2="11.167" width="0.4064" layer="1"/>
 </signal>
 <signal name="AOUT_THERMISTOR">
-<contactref element="U$1" pad="THEMRISTOR+"/>
+<contactref element="U$1" pad="THERMISTOR+"/>
 <contactref element="R7" pad="1"/>
 <contactref element="U$2" pad="4"/>
 <wire x1="8.39" y1="7.153" x2="8.39" y2="5.596" width="0.254" layer="1"/>
@@ -855,11 +865,9 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="8.39" y1="7.153" x2="8.39" y2="8.247" width="0.3048" layer="1"/>
 <wire x1="8.39" y1="8.247" x2="8.128" y2="8.509" width="0.3048" layer="1"/>
 <via x="8.128" y="8.509" extent="1-16" drill="0.35"/>
-<wire x1="8.128" y1="8.509" x2="14.732" y2="8.509" width="0.3048" layer="16"/>
-<wire x1="17.5604" y1="11.3374" x2="19.7776" y2="11.3374" width="0.3048" layer="16"/>
-<wire x1="14.732" y1="8.509" x2="17.5604" y2="11.3374" width="0.3048" layer="16"/>
-<wire x1="19.948" y1="11.167" x2="19.948" y2="10.423" width="0.3048" layer="16"/>
-<wire x1="19.7776" y1="11.3374" x2="19.948" y2="11.167" width="0.3048" layer="16"/>
+<wire x1="16.9" y1="10.423" x2="18.152" y2="10.423" width="0.3048" layer="16"/>
+<wire x1="8.128" y1="8.509" x2="14.986" y2="8.509" width="0.3048" layer="16"/>
+<wire x1="14.986" y1="8.509" x2="16.9" y2="10.423" width="0.3048" layer="16"/>
 </signal>
 <signal name="GND">
 <contactref element="U$1" pad="THERMOPILE_GND"/>
@@ -967,12 +975,24 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="22.733" y1="9.398" x2="21.971" y2="8.636" width="0.4064" layer="1"/>
 <wire x1="21.971" y1="8.636" x2="19.957" y2="8.636" width="0.4064" layer="1"/>
 <wire x1="19.957" y1="8.636" x2="19.948" y2="8.627" width="0.4064" layer="1"/>
-<wire x1="22.733" y1="13.374" x2="22.733" y2="9.398" width="0.4064" layer="1"/>
+<wire x1="22.733" y1="13.374" x2="22.733" y2="12.319" width="0.4064" layer="1"/>
+<wire x1="22.733" y1="12.319" x2="22.733" y2="9.398" width="0.4064" layer="1"/>
 <wire x1="15.367" y1="5.803" x2="15.367" y2="6.477" width="0.4064" layer="1"/>
 <wire x1="15.367" y1="6.477" x2="15.875" y2="6.985" width="0.4064" layer="1"/>
 <wire x1="15.875" y1="6.985" x2="15.875" y2="7.62" width="0.4064" layer="1"/>
 <wire x1="15.875" y1="7.62" x2="16.882" y2="8.627" width="0.4064" layer="1"/>
 <wire x1="16.882" y1="8.627" x2="18.152" y2="8.627" width="0.4064" layer="1"/>
+<contactref element="U$9" pad="2"/>
+<contactref element="C12" pad="2"/>
+<wire x1="25.273" y1="14.732" x2="25.273" y2="14.889" width="0.4064" layer="1"/>
+<via x="25.527" y="13.589" extent="1-16" drill="0.3"/>
+<wire x1="27.813" y1="15.074" x2="26.328" y2="13.589" width="0.3048" layer="1"/>
+<wire x1="26.328" y1="13.589" x2="25.527" y2="13.589" width="0.3048" layer="1"/>
+<wire x1="25.273" y1="14.889" x2="25.273" y2="13.843" width="0.3048" layer="1"/>
+<wire x1="25.273" y1="13.843" x2="25.527" y2="13.589" width="0.3048" layer="1"/>
+<wire x1="25.527" y1="13.589" x2="24.003" y2="13.589" width="0.3048" layer="16"/>
+<wire x1="24.003" y1="13.589" x2="22.733" y2="12.319" width="0.3048" layer="16"/>
+<via x="22.733" y="12.319" extent="1-16" drill="0.3"/>
 </signal>
 <signal name="N$1">
 <contactref element="U$3" pad="4"/>
@@ -1156,8 +1176,6 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <via x="27.051" y="12.446" extent="1-16" drill="0.35"/>
 <wire x1="27.813" y1="13.374" x2="27.813" y2="13.208" width="0.4064" layer="1"/>
 <wire x1="27.813" y1="13.208" x2="27.051" y2="12.446" width="0.4064" layer="1"/>
-<wire x1="14.859" y1="15.113" x2="24.384" y2="15.113" width="0.3048" layer="16"/>
-<wire x1="24.384" y1="15.113" x2="27.051" y2="12.446" width="0.3048" layer="16"/>
 <wire x1="7.89" y1="2.753" x2="6.016" y2="2.753" width="0.254" layer="1"/>
 <wire x1="6.016" y1="2.753" x2="5.842" y2="2.579" width="0.254" layer="1"/>
 <via x="4.318" y="4.191" extent="1-16" drill="0.35"/>
@@ -1168,6 +1186,10 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="4.318" y1="4.191" x2="4.318" y2="3.302" width="0.3048" layer="1"/>
 <wire x1="5.041" y1="2.579" x2="5.842" y2="2.579" width="0.3048" layer="1"/>
 <wire x1="4.318" y1="3.302" x2="5.041" y2="2.579" width="0.3048" layer="1"/>
+<wire x1="25.4" y1="15.113" x2="26.289" y2="14.224" width="0.3048" layer="16"/>
+<wire x1="26.289" y1="14.224" x2="26.289" y2="13.208" width="0.3048" layer="16"/>
+<wire x1="26.289" y1="13.208" x2="27.051" y2="12.446" width="0.3048" layer="16"/>
+<wire x1="14.859" y1="15.113" x2="25.4" y2="15.113" width="0.3048" layer="16"/>
 </signal>
 <signal name="ADC_ADR">
 <contactref element="U$2" pad="1"/>
@@ -1274,15 +1296,6 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <wire x1="26.223" y1="15.687" x2="26.223" y2="14.889" width="0.3048" layer="1"/>
 <wire x1="21.502" y1="16.002" x2="25.908" y2="16.002" width="0.3048" layer="1"/>
 <wire x1="25.908" y1="16.002" x2="26.223" y2="15.687" width="0.3048" layer="1"/>
-</signal>
-<signal name="N$10">
-<contactref element="U$9" pad="2"/>
-<contactref element="C12" pad="2"/>
-<wire x1="25.273" y1="14.732" x2="25.273" y2="14.889" width="0.4064" layer="1"/>
-<wire x1="27.813" y1="15.074" x2="26.709" y2="13.97" width="0.3048" layer="1"/>
-<wire x1="26.709" y1="13.97" x2="25.527" y2="13.97" width="0.3048" layer="1"/>
-<wire x1="25.527" y1="13.97" x2="25.273" y2="14.224" width="0.3048" layer="1"/>
-<wire x1="25.273" y1="14.224" x2="25.273" y2="14.732" width="0.3048" layer="1"/>
 </signal>
 <signal name="N$11">
 <contactref element="U$10" pad="3"/>
