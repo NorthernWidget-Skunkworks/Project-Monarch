@@ -11,6 +11,13 @@
 #define COMP1_CMD 0x0A
 #define COMP2_CMD 0x0B
 
+#define ADC_CONF 0x01
+#define ADC_CONV 0x00
+#define ADC0 0x4200
+#define ADC1 0x5200
+#define ADC2 0x6200
+#define ADC3 0x7200
+
 #define VIS_ADR 0x48
 #define UV_ADR 0x10
 #define ADC_ADR 0x49
@@ -71,6 +78,13 @@ void loop() {
 		SplitAndLoad(0x0D, GetWhite()); //Load white value
 		SplitAndLoad(0x02, long(GetUV(0))); //Load UVA
 		SplitAndLoad(0x07, long(GetUV(1))); //Load UVB
+		SplitAndLoad(0x10, GetLuxGain()); //Load lux multiplier 
+		SplitAndLoad(0x13, GetADC(2));
+		// delay(500);
+		SplitAndLoad(0x15, GetADC(1));
+		// delay(500);
+		SplitAndLoad(0x17, GetADC(0));
+		// delay(500);
 
 		StartSample = false; //Clear flag when new values updated  
 	}
@@ -83,10 +97,13 @@ void loop() {
 
 uint8_t InitVEML(uint8_t Adr) 
 {
+	uint8_t CMD = 0; 
+	if(Adr = 0x48) CMD = 0x23;
+	else CMD = 0;
     si.i2c_start((Adr << 1) | WRITE);
     si.i2c_write(0x00);
     si.i2c_write(0x00);
-    si.i2c_write(0x00);
+    si.i2c_write(CMD);
     si.i2c_stop(); 
 
     return 0; //Fix dummy
@@ -96,6 +113,22 @@ uint8_t InitVEML(uint8_t Adr)
 uint8_t InitADC() 
 {
 	//Setup ADC system 
+	WriteWord_LE(ADC_ADR, ADC_CONF, ADC0); //Set to single shot mode with 
+}
+
+unsigned int GetADC(unsigned int Num)
+{
+	// unsigned int ADC_Config = ADC0 | (Num << 12); //Use to select which ADC to get data from
+	// WriteWord_LE(ADC_ADR, ADC_CONF, ADC_Config); //Setup registers
+	// unsigned int ADC_Mask = 0x4200;
+	// Serial.println(ADC_Mask | (Num << 12), HEX); //DEBUG!
+	if(Num == 0) WriteWord_LE(ADC_ADR, ADC_CONF, ADC0);  //FIX DUMB!
+	if(Num == 1) WriteWord_LE(ADC_ADR, ADC_CONF, ADC1);
+	if(Num == 2) WriteWord_LE(ADC_ADR, ADC_CONF, ADC2);
+
+	// WriteWord_LE(ADC_ADR, ADC_CONF, (ADC_Mask | (Num << 12))); //REPLACE! 
+	delay(300);
+	return ReadWord_LE(ADC_ADR, ADC_CONV); //Read from register
 }
 
 float GetUV(uint8_t Sel) //Select A or B using Sel value (0 or 1) 
@@ -135,15 +168,18 @@ unsigned int GetWhite()
 	return ReadWord(VIS_ADR, WHITE_CMD);
 }
 
-float GetLux() 
+unsigned int GetLuxGain() 
 {	//Add non-linear correction! 
 	// GetGain(); //Update global values
 	// GetIntTime(); 
 	float Gain = 0.125; //Hardcode max range for gain and int time 
 	float IntTime = 25.0;  
 	float Resolution = (1.8432/((float)IntTime/25.0))*(0.125/Gain);
-	return ReadWord(VIS_ADR, ALS_CMD)*Resolution; //Return scaled Lux mesurment
+	// unsigned int Resolution = (512/(IntTime/25.0))/(Gain/0.125);
+	return int(Resolution/0.0036); //Return Lux scaler
 }
+
+
 
 uint8_t SendCommand(uint8_t Adr, uint8_t Command)
 {
@@ -160,6 +196,16 @@ uint8_t WriteWord(uint8_t Adr, uint8_t Command, unsigned int Data)  //Writes val
 	uint8_t Error = si.i2c_write((Data >> 8) & 0xFF); //Write MSB
 	si.i2c_stop();
 	return Error;  //Invert error so that it will return 0 is works
+}
+
+uint8_t WriteWord_LE(uint8_t Adr, uint8_t Command, unsigned int Data)  //Writes value to 16 bit register
+{
+	si.i2c_start((Adr << 1) | WRITE);
+	si.i2c_write(Command); //Write Command value
+	si.i2c_write((Data >> 8) & 0xFF); //Write MSB
+	si.i2c_write(Data & 0xFF); //Write LSB
+	si.i2c_stop();
+	// return Error;  //Invert error so that it will return 0 is works
 }
 
 uint8_t WriteConfig(uint8_t Adr, uint8_t NewConfig)
@@ -203,6 +249,19 @@ int ReadWord(uint8_t Adr, uint8_t Command)  //Send command value, returns entire
 	return ((ByteHigh << 8) | ByteLow); //DEBUG!
 }
 
+int ReadWord_LE(uint8_t Adr, uint8_t Command)  //Send command value, returns entire 16 bit word
+{
+	bool Error = SendCommand(Adr, Command);
+	si.i2c_stop();
+	si.i2c_start((Adr << 1) | READ);
+	uint8_t ByteHigh = si.i2c_read(false);  //Read in high and low bytes (big endian)
+	uint8_t ByteLow = si.i2c_read(false);
+	si.i2c_stop();
+	// if(Error == true) return ((ByteHigh << 8) | ByteLow); //If read succeeded, return concatonated value
+	// else return -1; //Return error if read failed
+	return ((ByteHigh << 8) | ByteLow); //DEBUG!
+}
+
 void SplitAndLoad(uint8_t Pos, unsigned int Val) //Write 16 bits
 {
 	uint8_t Len = sizeof(Val);
@@ -218,6 +277,14 @@ void SplitAndLoad(uint8_t Pos, long Val)  //Write 32 bits
 		Reg[i] = (Val >> (i - Pos)*8) & 0xFF; //Pullout the next byte
 	}
 }
+
+// void SplitAndLoad(uint8_t Pos, uint8_t Val)  //Write 32 bits
+// {
+// 	uint8_t Len = sizeof(Val);
+// 	for(int i = Pos; i < Pos + Len; i++) {
+// 		Reg[i] = (Val >> (i - Pos)*8) & 0xFF; //Pullout the next byte
+// 	}
+// }
 
 boolean addressEvent(uint16_t address, uint8_t count)
 {
@@ -239,7 +306,7 @@ void requestEvent()
 //  		Wire.write(Reg[RegID++]);
 //	}
 	if(RepeatedStart) {
-		for(int i = 0; i < BUF_LENGTH; i++) {
+		for(int i = 0; i < 2; i++) {
 			Wire.write(Reg[RegID + i]);
 		}
 	}
