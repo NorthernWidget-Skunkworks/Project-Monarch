@@ -48,8 +48,8 @@ volatile uint8_t RegID = 0; //Used to denote which register will be read from
 volatile bool RepeatedStart = false; //Used to show if the start was repeated or not
 
 void setup() {
-  Serial.begin(115200); //DEBUG!
-  Serial.println("begin"); //DEBUG!
+  // Serial.begin(115200); //DEBUG!
+  // Serial.println("begin"); //DEBUG!
   Wire.begin(ADR);  //Begin slave I2C
   InitVEML(0x48); //Init Vis (VEML6030)
   InitVEML(0x10); //Init UV (VEML6075)
@@ -68,23 +68,15 @@ void loop() {
 	static unsigned int Count = 0; //Counter to determine update rate
 	if(StartSample == true) {
 		//Read new values in
-		Serial.println(GetUV(0)); //DEBUG!
-		Serial.println(GetUV(1)); //DEBUG!
-		Serial.println(GetWhite()); //DEBUG!
-		Serial.println(GetALS()); //DEBUG!
 
-		// unsigned int Val = 0; //Temp value for getting data and moving to regs
 		SplitAndLoad(0x0B, GetALS()); //Load ALS value
 		SplitAndLoad(0x0D, GetWhite()); //Load white value
 		SplitAndLoad(0x02, long(GetUV(0))); //Load UVA
 		SplitAndLoad(0x07, long(GetUV(1))); //Load UVB
 		SplitAndLoad(0x10, GetLuxGain()); //Load lux multiplier 
-		SplitAndLoad(0x13, GetADC(2));
-		// delay(500);
+		SplitAndLoad(0x13, GetADC(0));
 		SplitAndLoad(0x15, GetADC(1));
-		// delay(500);
-		SplitAndLoad(0x17, GetADC(0));
-		// delay(500);
+		SplitAndLoad(0x17, GetADC(2));
 
 		StartSample = false; //Clear flag when new values updated  
 	}
@@ -118,28 +110,14 @@ uint8_t InitADC()
 
 unsigned int GetADC(unsigned int Num)
 {
-	// unsigned int ADC_Config = ADC0 | (Num << 12); //Use to select which ADC to get data from
-	// WriteWord_LE(ADC_ADR, ADC_CONF, ADC_Config); //Setup registers
-	// unsigned int ADC_Mask = 0x4200;
-	// Serial.println(ADC_Mask | (Num << 12), HEX); //DEBUG!
-	if(Num == 0) WriteWord_LE(ADC_ADR, ADC_CONF, ADC0);  //FIX DUMB!
-	if(Num == 1) WriteWord_LE(ADC_ADR, ADC_CONF, ADC1);
-	if(Num == 2) WriteWord_LE(ADC_ADR, ADC_CONF, ADC2);
-
-	// WriteWord_LE(ADC_ADR, ADC_CONF, (ADC_Mask | (Num << 12))); //REPLACE! 
-	delay(300);
+	unsigned int ADC_Config = ADC0 | (Num << 12); //Use to select which ADC to get data from
+	WriteWord_LE(ADC_ADR, ADC_CONF, ADC_Config); //Setup registers
+	delay(300);  //Wait for next sample to be read
 	return ReadWord_LE(ADC_ADR, ADC_CONV); //Read from register
 }
 
 float GetUV(uint8_t Sel) //Select A or B using Sel value (0 or 1) 
 {
-	// Config = ReadByte(UV_ADR, CONF_CMD, 0);
-	// long ConversionTime = (1 << ((Config & 0x70) >> 4))*50; //Calculate ms conversion time = (2^UV_IT) * 50
-	// if((Config | 0x02) >> 1) { //Test single shot bit
-	// 	while((millis() - StartTime) < ConversionTime);  //Wait if more time is needed
-	// }
-	//In either case, measurment process is the same 
-
 	float Comp1 = ReadWord(UV_ADR, COMP1_CMD);
 	float Comp2 = ReadWord(UV_ADR, COMP2_CMD);
 
@@ -170,8 +148,6 @@ unsigned int GetWhite()
 
 unsigned int GetLuxGain() 
 {	//Add non-linear correction! 
-	// GetGain(); //Update global values
-	// GetIntTime(); 
 	float Gain = 0.125; //Hardcode max range for gain and int time 
 	float IntTime = 25.0;  
 	float Resolution = (1.8432/((float)IntTime/25.0))*(0.125/Gain);
@@ -278,22 +254,8 @@ void SplitAndLoad(uint8_t Pos, long Val)  //Write 32 bits
 	}
 }
 
-// void SplitAndLoad(uint8_t Pos, uint8_t Val)  //Write 32 bits
-// {
-// 	uint8_t Len = sizeof(Val);
-// 	for(int i = Pos; i < Pos + Len; i++) {
-// 		Reg[i] = (Val >> (i - Pos)*8) & 0xFF; //Pullout the next byte
-// 	}
-// }
-
 boolean addressEvent(uint16_t address, uint8_t count)
 {
-//   RW = (address & 0x01); //Test for read/write
-// 	if(count == 0) StartFlag = true; //Set flag to start comunication to slave
-// //StartFlag = true; //DEBUG!
-// 	if(count > 0) RestartFlag = true;  //Set read flag after multiple
-// //	slaveAddr = AddressRemap[address - ADDR]; //Convert input address to on board address
-//   slaveAddr = 0x49; //DEBUG!
 	RepeatedStart = (count > 0 ? true : false);
 	return true; // send ACK to master
 }
@@ -301,10 +263,6 @@ boolean addressEvent(uint16_t address, uint8_t count)
 void requestEvent()
 {	
 	//Allow for repeated start condition 
-//	StopFlag = false;
-//	while(!StopFlag) {  //Read values back until you get a stop flag 
-//  		Wire.write(Reg[RegID++]);
-//	}
 	if(RepeatedStart) {
 		for(int i = 0; i < 2; i++) {
 			Wire.write(Reg[RegID + i]);
