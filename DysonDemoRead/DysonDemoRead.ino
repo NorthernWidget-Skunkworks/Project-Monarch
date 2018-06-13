@@ -15,6 +15,7 @@ Distributed as-is; no warranty is given.
 ******************************************************************************/
 
 #include "Wire.h"
+#include "math.h"
 
 #define UVA_ADR 0x02
 #define UVB_ADR 0x06
@@ -25,7 +26,12 @@ Distributed as-is; no warranty is given.
 #define IR_SHORT_ADR 0x15
 #define THERM_ADR 0x17
 
+#define XAXIS 0x32
+#define YAXIS 0x34
+#define ZAXIS 0x36
+
 #define ADR 0x40  //Address of Pyranometer
+#define ACCEL_ADR 0x1D //Address of accelerometer (ADXL343)
 
 const float LuxRes = 0.0036; //Min resolution of lux measurement
 
@@ -41,7 +47,7 @@ void setup() {
 }
 
 void loop() {
-  PrintAllRegs();
+  // PrintAllRegs();
   Serial.print("UVA = "); 
   Serial.println(GetUVA());
   Serial.print("UVB = "); 
@@ -58,52 +64,119 @@ void loop() {
   Serial.println(GetIR_Mid());
   Serial.print("Temp = ");
   Serial.println(GetTemp() - 273.15);
-  delay(1000);
+  Serial.print("Tilt = ");
+  for(int i = 3; i < 5; i++) {
+    Serial.print(GetAngle(i));
+    Serial.print(",");
+  }
+  Serial.print("\n\n");
+  delay(1000); 
 
 }
 
+uint8_t InitDyson() 
+{
+
+}
+
+uint8_t InitAccel()  //Add variable address ability??
+{
+  WriteByte(ACCEL_ADR, 0x2D, 0x08); //Turn on accelerometer
+  WriteByte(ACCEL_ADR, 0x31, 0x08); //
+  WriteByte(ACCEL_ADR, 0x38, 0x00); //Bypass FIFO
+  WriteByte(ACCEL_ADR, 0x2C, 0x0A); //Setup rate
+}
+
+float GetG(uint8_t Axis) 
+{
+  WriteByte(ACCEL_ADR, 0x2D, 0x08); //Turn on accelerometer
+  // WriteByte(ACCEL_ADR, XAXIS);
+  // delay(100);
+  Wire.beginTransmission(ACCEL_ADR);
+  Wire.write(XAXIS + 2*Axis);
+  Wire.endTransmission();
+  Wire.beginTransmission(ACCEL_ADR);
+  Wire.requestFrom(ACCEL_ADR, 2);
+  int LSB = Wire.read();
+  int MSB = Wire.read();
+  Wire.endTransmission();
+  // return ReadWord(ACCEL_ADR, XAXIS); 
+  // Serial.print(MSB, HEX); Serial.println(LSB, HEX); //DEBUG!
+  float g = ((MSB << 8) | LSB)*(0.0039); 
+  return g; 
+}
+
+float GetAngle(uint8_t Axis)
+{
+  float ValX = GetG(0); //Used to get g values
+  float ValY = GetG(1);
+  float ValZ = GetG(2);
+  float Val = 0;
+  switch(Axis) {
+    case(0):
+      Val = asin(ValX); 
+      break;
+    case(1):
+      Val = asin(ValY);
+      break;
+    case(2):
+      Val = acos(ValZ);
+      break;
+    case(3):
+      Val = atan(ValX/(sqrt(pow(ValY, 2) + pow(ValZ, 2))))*(180.0/3.14); //Return pitch angle
+      break;
+    case(4):
+      Val = atan(ValY/(sqrt(pow(ValX, 2) + pow(ValZ, 2))))*(180.0/3.14); //Return roll angle
+      break;
+  }
+
+  return Val; 
+}
+
+
+
 long GetUVA() 
 {
-  long LSW = ReadWord(UVA_ADR); //Read low word
-  long MSW = ReadWord(UVA_ADR + 2); //Read high word
+  long LSW = ReadWord(ADR, UVA_ADR); //Read low word
+  long MSW = ReadWord(ADR, UVA_ADR + 2); //Read high word
   return (MSW << 16) | LSW; //Return concatenated result
 }
 
 long GetUVB()
 {
-  long LSW = ReadWord(UVB_ADR); //Read low word
-  long MSW = ReadWord(UVB_ADR + 2); //Read high word
+  long LSW = ReadWord(ADR, UVB_ADR); //Read low word
+  long MSW = ReadWord(ADR, UVB_ADR + 2); //Read high word
   return (MSW << 16) | LSW; //Return concatenated result
 }
 
 unsigned int GetALS()
 {
-  return ReadWord(ALS_ADR); //Read back als value
+  return ReadWord(ADR, ALS_ADR); //Read back als value
 }
 
 unsigned int GetWhite()
 {
-  return ReadWord(WHITE_ADR); //Read back white value
+  return ReadWord(ADR, WHITE_ADR); //Read back white value
 }
 
 float GetLux()
 {
-  return float(ReadWord(ALS_ADR))*float(ReadWord(LUXMUL_ADR))*LuxRes;  //Multiply lux value by set gain from LuxMul
+  return float(ReadWord(ADR, ALS_ADR))*float(ReadWord(ADR, LUXMUL_ADR))*LuxRes;  //Multiply lux value by set gain from LuxMul
 }
 
 float GetIR_Short()
 {
-  return float(ReadWord(IR_SHORT_ADR))*(1.25e-4);
+  return float(ReadWord(ADR, IR_SHORT_ADR))*(1.25e-4);
 }
 
 float GetIR_Mid()
 {
-  return float(ReadWord(IR_MID_ADR))*(1.25e-4);
+  return float(ReadWord(ADR, IR_MID_ADR))*(1.25e-4);
 }
 
 float GetTemp()
 {
-  float Val = float(ReadWord(THERM_ADR))*(1.25e-4);
+  float Val = float(ReadWord(ADR, THERM_ADR))*(1.25e-4);
   return TempConvert(Val, 3.3, 10000.0, A, B, C, D, 10000.0);
 }
 
@@ -118,33 +191,40 @@ float TempConvert(float V, float Vcc, float R, float A, float B, float C, float 
 void PrintAllRegs() {
   for(int i = 0; i < 0x1A; i++) {
     Serial.print("Reg"); Serial.print(i, HEX); Serial.print(":\t"); //Print register number
-    Serial.println(ReadByte(i)); //Print register value
+    Serial.println(ReadByte(ADR, i)); //Print register value
   }
   Serial.print("\n\n");
 }
 
-uint8_t WriteByte(uint8_t Pos, uint8_t Val)
+uint8_t WriteByte(uint8_t Adr, uint8_t Pos, uint8_t Val)
 {
-  Wire.beginTransmission(ADR);
+  Wire.beginTransmission(Adr);
   Wire.write(Pos);  //Identify register
   Wire.write(Val);  //Write desired value to register
   Wire.endTransmission(); //End I2C message
 }
 
-uint8_t ReadByte(uint8_t Pos)
+// uint8_t WriteByte(uint8_t Adr, uint8_t Val)
+// {
+//   Wire.beginTransmission(Adr);
+//   Wire.write(Val);  //Write desired value to register
+//   Wire.endTransmission(); //End I2C message
+// }
+
+uint8_t ReadByte(uint8_t Adr, uint8_t Pos)
 {
-  Wire.beginTransmission(ADR);
+  Wire.beginTransmission(Adr);
   Wire.write(Pos);  //Read from desired position
   Wire.endTransmission(true); 
-  Wire.requestFrom(ADR, 1); //Read a single byte
+  Wire.requestFrom(Adr, 1); //Read a single byte
   while(Wire.available() < 1); //Wait for byte to be read in
   return Wire.read(); //Read the desired value back
 }
 
-unsigned int ReadWord(uint8_t Pos)
+unsigned int ReadWord(uint8_t Adr, uint8_t Pos)
 {
-  unsigned int LSB = ReadByte(Pos);
-  unsigned int MSB = ReadByte(Pos + 1);
+  unsigned int LSB = ReadByte(Adr, Pos);
+  unsigned int MSB = ReadByte(Adr, Pos + 1);
   return (MSB << 8) | LSB; //Read the desired value back
 }
 
