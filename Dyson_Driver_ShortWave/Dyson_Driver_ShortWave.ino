@@ -27,6 +27,16 @@
 
 #define BUF_LENGTH 64 //Length of I2C Buffer, verify with documentation 
 
+#define LOW_LIM_VIS 10000  //Lower limit to the auto ranging of the VEML6030
+#define HIGH_LIM_VIS 55000 //Upper limit to the auto ranging of the VEML6030
+
+//Global values for gain and int time of visable light sensor
+uint8_t Gain = 0;
+unsigned int IntTime = 0;
+uint8_t GainValsVis[4] = {0b10, 0b11, 0b00, 0b01}; //Gain values for visible sensor
+uint8_t GainsVis[4] = {1, 2, 8, 16}; //Gain multipliers for visable sensor 
+uint8_t IntTimeValsVis[6] = {0b1100, 0b1000, 0b0000, 0b0001, 0b0010, 0b0011}; //Integration time values for visible sensor
+
 //Compensation constants
 float a = 1.92;
 float b = 0.55;
@@ -48,8 +58,8 @@ volatile uint8_t RegID = 0; //Used to denote which register will be read from
 volatile bool RepeatedStart = false; //Used to show if the start was repeated or not
 
 void setup() {
-  // Serial.begin(115200); //DEBUG!
-  // Serial.println("begin"); //DEBUG!
+  Serial.begin(115200); //DEBUG!
+  Serial.println("begin"); //DEBUG!
   Wire.begin(ADR);  //Begin slave I2C
   InitVEML(0x48); //Init Vis (VEML6030)
   InitVEML(0x10); //Init UV (VEML6075)
@@ -62,13 +72,16 @@ void setup() {
 	Wire.onStop(stopEvent);
 
   si.i2c_init(); //Begin I2C master
+
+  AutoRange_Vis(); //Auto range for given light conditions
 }
 
 void loop() {
 	static unsigned int Count = 0; //Counter to determine update rate
 	if(StartSample == true) {
 		//Read new values in
-
+		AutoRange_Vis();  //Run auto range
+		delay(800); //Wait for new sample
 		SplitAndLoad(0x0B, GetALS()); //Load ALS value
 		SplitAndLoad(0x0D, GetWhite()); //Load white value
 		SplitAndLoad(0x02, long(GetUV(0))); //Load UVA
@@ -90,7 +103,7 @@ void loop() {
 uint8_t InitVEML(uint8_t Adr) 
 {
 	uint8_t CMD = 0; 
-	if(Adr = 0x48) CMD = 0x23;
+	if(Adr == 0x48) CMD = 0x23;
 	else CMD = 0;
     si.i2c_start((Adr << 1) | WRITE);
     si.i2c_write(0x00);
@@ -126,6 +139,7 @@ float GetUV(uint8_t Sel) //Select A or B using Sel value (0 or 1)
 	if(Sel == 0) {
 		UV = ReadWord(UV_ADR, UVA_CMD);
 		UV_Comp = UV - a*Comp1 - b*Comp2;
+		// Serial.println(UV);
 	}
 
 	if(Sel == 1) {
@@ -148,14 +162,193 @@ unsigned int GetWhite()
 
 unsigned int GetLuxGain() 
 {	//Add non-linear correction! 
-	float Gain = 0.125; //Hardcode max range for gain and int time 
-	float IntTime = 25.0;  
-	float Resolution = (1.8432/((float)IntTime/25.0))*(0.125/Gain);
+	float GainTemp = float(Gain); //Hardcode max range for gain and int time 
+	float IntTimeTemp = float(IntTime);  
+	float Resolution = (1.8432/IntTimeTemp)/GainTemp;
 	// unsigned int Resolution = (512/(IntTime/25.0))/(Gain/0.125);
+	Serial.println(int(Resolution/0.0036)); //DEBUG!
 	return int(Resolution/0.0036); //Return Lux scaler
 }
 
 
+uint8_t AutoRange_Vis() 
+{	
+	// WriteWord(VIS_ADR, CONF_CMD, (GainValsVis[0] << 11) | (IntTimeValsVis[0] << 6)); //Write min gain vals
+	WriteWord(VIS_ADR, CONF_CMD, 0x1300);
+	delay(800); //Wait for new sample
+	unsigned int Val = GetALS();
+	Serial.print("Val = "); Serial.println(Val); //DEBUG!
+	// Serial.println(Val); //DEBUG!
+	if(Val > HIGH_LIM_VIS) {
+		Gain = GainsVis[0];  //Set global values
+		IntTime = pow(2, 0); 
+	}
+
+	bool InRange = false; //Flag to test for range
+	unsigned int ValTest = 0;
+	uint8_t GainTemp = 0;  //Index of desired gain
+	uint8_t IntTimeTemp = 0; //Index of desired integration time
+	while(!InRange && IntTimeTemp < 6) {
+		ValTest = (Val*int(GainsVis[GainTemp])*(1 << int(IntTimeTemp)));
+		Serial.print("ValTest = "); Serial.println(ValTest); //DEBUG!
+		if(ValTest < LOW_LIM_VIS) {
+			GainTemp++;
+		}
+		if(GainTemp > 3 && IntTimeTemp < 5) {
+			GainTemp = 0;
+			IntTimeTemp++;
+		}
+
+		if(GainTemp == 3 && IntTimeTemp == 5) InRange = true; //Set if max value is reached 
+		if(ValTest > LOW_LIM_VIS && ValTest < HIGH_LIM_VIS) InRange = true; //Found correct gain and int vals
+	}
+	Serial.print(GainValsVis[GainTemp], BIN); Serial.print("\t"); Serial.println(IntTimeValsVis[IntTimeTemp], BIN);  //DEBUG!
+	WriteWord(VIS_ADR, CONF_CMD, (GainValsVis[GainTemp] << 11) | (IntTimeValsVis[IntTimeTemp] << 6));  //Write new gain value
+	Gain = GainsVis[GainTemp];  //Set global values
+	IntTime = pow(2, IntTimeTemp); 
+}
+// float GetGain(uint8_t GainBits)
+// {
+// 	uint8_t X0 = ReadBit(GainBits, 1);
+// 	uint8_t X1 = ReadBit(GainBits, 0);
+// 	Gain = pow(2, X0 - 3*X1);
+// 	return Gain; 
+// }
+
+// unsigned int Gain2Bits(float GainVal)
+// {
+// 	for(int i = 0; i < 4; i++) {  //Use linear search to avoid float math and increase speed
+// 		if(GainVals[i] == GainVal) {
+// 			return (i << 11); //if entries match, return bits
+// 		}
+// 	}
+// 	return 0x1000; //Return gain of 1/8 if not a valid gain value 
+// }
+
+// unsigned int GetIntTime()
+// {
+// 	Config = ReadWord(CONF_CMD); //Update global config value
+// 	int X2X1 = (Config >> 6) & 0x03; 
+// 	int X3 = ReadBit(Config, 8);
+// 	int X4 = ReadBit(Config, 9);
+// 	IntTime = 100*pow(2, X2X1)/pow(2, X3 + X4);  //Do some ugly math to go from bit pattern to value
+// 	return IntTime; 
+// }
+
+// unsigned int IntTime2Bits(unsigned int Time)
+// {
+// 	uint8_t X2X1 = (int)(log(Time/100)/log(2));
+// 	uint8_t X4X3 = (int)(((Time % 100) / 25) + 2*(Time % 50)/25);
+// 	return ((X4X3 << 2) | (X2X1)) << 6; 
+// }
+
+// uint8_t SetGain(unsigned int GainVal)
+// {
+// 	Config = ReadWord(CONF_CMD); //Update global config value
+// 	// Serial.print("Config = "); //DEBUG!
+// 	// Serial.print(Config); //DEBUG! 
+// 	// Serial.print(" "); //DEBUG!
+// 	// Serial.println((Config & 0xE7FF) | GainVal); //DEBUG!
+// 	return WriteConfig((Config & 0xE7FF) | GainVal);
+// }
+
+// uint8_t AutoRange()  //Automatically finds maximum gain and resolution values for given irradiance
+// {
+// 	// PowerSaveOff(); //Turn power save off for fastest reading
+// 	SetIntTime(IT25); //Set to minimum integration time
+// 	SetGain(GAIN_1_8); //Set to minmum gain
+// 	// Serial.print("UnRanged Result ="); Serial.println(ReadWord(CONF_CMD), HEX); //DEBUG!
+// 	// PowerOn();
+// 	// long StartTime = millis(); //DEBUG! 
+// 	// while(millis() - StartTime < 50) {  //DEBUG!
+// 	// 	Serial.println(ReadWord(INT_CMD), HEX); //DEBUG!
+// 	// }  //DEBUG!
+// 	delay(30); //Wait for new sample
+// 	float TestLux = GetLux(); //Get new lux value
+// 	unsigned long HighLux = 120796;  //Start at max value
+// 	unsigned int NewIntTime = 25; //Default to min value
+// 	float NewGainHigh = 0.125; //Default to min value
+// 	float NewGainLow = 0.25; //Default to 2nd lowest value
+// 	float NewGain = 0.125; //Default to min value
+// 	// Serial.print("LuxTest = "); //DEBUG!
+// 	// Serial.println(TestLux); //DEBUG!
+// 	//Increment through lux ranges to find desired gain range
+// 	if(TestLux < 236) {  //If Lux is too small to measure at max values (<1.8432) or in minimum range, simply set to highest gain and integration time
+// 		NewIntTime = 800;
+// 		NewGain = 2;
+// 	}
+// 	else {  //If lux is not outside low range, search for a value
+// 		for(int i = 0; i < 6; i++) {
+// 			if(TestLux < HighLux && TestLux >= HighLux/2.0) {
+// 				NewIntTime = NewIntTime * ceil(pow(2, i));
+// 				break; //breakout of for loop since result is found
+// 			}
+// 			else HighLux = ceil(HighLux/2.0); //If not found, go to next lux range
+// 		}
+
+// 		if(TestLux < HighLux * 0.0625) NewGain = 2; //If below the lowest max for integration range, set to max gain
+// 		else {  //Otherwise search for a new value 
+// 			for(int g = 1; g < 3; g++) {
+// 				if(TestLux < HighLux * (0.125/NewGainHigh) && TestLux >= HighLux * (0.125/NewGainLow)) {
+// 					NewGain = NewGainHigh;
+// 					break; //Break loop once gain is found
+// 				}
+// 				else {
+// 					NewGainHigh = NewGainLow;
+// 					NewGainLow = GetGain(GainValBits[g + 1]);
+// 				}
+// 			}
+// 		}
+// 	}
+
+// 	// Serial.print("AutoRange Vals = "); Serial.print(NewGain); Serial.print(" "); Serial.println(NewIntTime); //DEBUG!
+// 	unsigned int GainBits = Gain2Bits(NewGain); //Convert new gain value
+// 	unsigned int IntBits = IntTime2Bits(NewIntTime); //Convert to new integration time
+// 	// Serial.print("Bits = "); Serial.print(GainBits, HEX); Serial.print(" "); Serial.println(IntBits, HEX); //DEBUG!
+
+// 	SetGain(GainBits);
+// 	SetIntTime(IntBits);
+// 	// Serial.print("AutoRanged Result ="); Serial.println(ReadWord(CONF_CMD), HEX); //DEBUG!
+// }
+
+// float GetGain()
+// {
+// 	Config = ReadWord(CONF_CMD); //Update global config value
+// 	// Serial.println(Config); //DEBUG!
+// 	int X0 = ReadBit(Config, 11);
+// 	int X1 = ReadBit(Config, 12);
+// 	Gain = pow(2, X0 - 3*X1);
+// 	return Gain; 
+// }
+
+// unsigned int GetIntTime()
+// {
+// 	Config = ReadWord(CONF_CMD); //Update global config value
+// 	int X2X1 = (Config >> 6) & 0x03; 
+// 	int X3 = ReadBit(Config, 8);
+// 	int X4 = ReadBit(Config, 9);
+// 	IntTime = 100*pow(2, X2X1)/pow(2, X3 + X4);  //Do some ugly math to go from bit pattern to value
+// 	return IntTime; 
+// }
+
+// float GetLux() 
+// {	//Add non-linear correction! 
+// 	GetGain(); //Update global values
+// 	GetIntTime(); 
+// 	float Resolution = (1.8432/((float)IntTime/25.0))*(0.125/Gain);
+// 	// Serial.print("TEST = "); //DEBUG!
+// 	// Serial.print(Resolution); //DEBUG!
+// 	// Serial.print(" "); //DEBUG!
+// 	// Serial.print(IntTime); //DEBUG! 
+// 	// Serial.print(" "); //DEBUG!
+// 	// Serial.println(Gain); //DEBUG!
+// 	return GetALS()*Resolution; //Return scaled Lux mesurment
+// }
+
+// uint8_t ReadBit(unsigned int Data, uint8_t Pos)
+// {
+// 	return (Data >> Pos) & 0x01; 
+// }
 
 uint8_t SendCommand(uint8_t Adr, uint8_t Command)
 {
@@ -216,6 +409,7 @@ int ReadByte(uint8_t Adr, uint8_t Command, uint8_t Pos) //Send command value, an
 int ReadWord(uint8_t Adr, uint8_t Command)  //Send command value, returns entire 16 bit word
 {
 	bool Error = SendCommand(Adr, Command);
+	Serial.print("Error = "); Serial.println(Error); //DEBUG!
 	si.i2c_rep_start((Adr << 1) | READ);
 	uint8_t ByteLow = si.i2c_read(false);  //Read in high and low bytes (big endian)
 	uint8_t ByteHigh = si.i2c_read(false);
@@ -271,10 +465,10 @@ void requestEvent()
 	else {
 		Wire.write(Reg[RegID]);
 	}
-
 }
 
-void receiveEvent(int DataLen) {
+void receiveEvent(int DataLen) 
+{
     //Write data to appropriate location
     if(DataLen == 2){
 	    //Remove while loop?? 
@@ -290,7 +484,8 @@ void receiveEvent(int DataLen) {
 	}
 }
 
-void stopEvent() {
+void stopEvent() 
+{
 	StopFlag = true;
 	//End comunication
 }
