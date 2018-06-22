@@ -21,7 +21,26 @@
 #define ADR 0x40  //Address of Pyranometer
 #define ACCEL_ADR 0x1D //Address of accelerometer (ADXL343)
 
+const uint8_t RedLED = 13;
+const uint8_t GreenLED = 15;
+const uint8_t BlueLED = 14;
+
+const uint8_t BuiltInLED = 20;
+
+const unsigned long RED = 0xFFFF0000L;
+const unsigned long GREEN = 0xFF00FF00L;
+const unsigned long BLUE = 0xFF0000FFL;
+const unsigned long MAROON = 0xFF800000L;
+const unsigned long GOLD = 0xFFFFD700L;
+const unsigned long ORANGE = 0xFFFFA500L;
+const unsigned long PURPLE = 0xFF800080L;
+const unsigned long CYAN = 0xFF00FFFF;
+const unsigned long BLACK_ALERT = 0x802019FF;
+const unsigned long OFF = 0x00;
+
 const float LuxRes = 0.0036; //Min resolution of lux measurement
+
+const float KippAndZonenConv = 1.257e-5; // [V/W/m^2] for a given kipp and zonen pyranometer 
 
 const float A = 0.003354016;
 const float B = 0.0003074038;
@@ -46,29 +65,68 @@ String LogTimeDate = "2063/04/05 20:00:00";
 
 const int Ext3v3Ctrl = 19; 
 
+bool GlobalError = false;
+
 void setup() {
 	// put your setup code here, to run once:
 	pinMode(Ext3v3Ctrl, OUTPUT);
   	digitalWrite(Ext3v3Ctrl, LOW); //Turn on power by default, turn off later to sleep
+
+  	pinMode(RedLED, OUTPUT);
+	pinMode(GreenLED, OUTPUT);
+	pinMode(BlueLED, OUTPUT);
+	pinMode(BuiltInLED, OUTPUT);
+	LED_Color(OFF); //Turn off intially 
+
+	digitalWrite(BuiltInLED, LOW); //Turn LED On
+
 	Serial.begin(115200); 
 	Serial.println("Welcome to the Sphere...");
 	Wire.begin();
 	RTC.Begin(); //Initalize RTC
 	InitAccel();
+	adc.Begin();
+	adc.SetResolution(18);
+	// adc.SetGain(8);
 	// SD.begin(SD_CS);
 	pinMode(SD_CS, OUTPUT);
 	SDTest();
 	InitLogFile();
+
+	digitalWrite(BuiltInLED, HIGH); //Turn LED off
+	if(GlobalError == false) LED_Color(GREEN);
+	else LED_Color(RED);
+	delay(2000);
+	LED_Color(OFF);
+
 }
 
 
 void loop() {
   // put your main code here, to run repeatedly:
   GetTime(); //FIX!
-  String Data = String(GetUVA()) + "," + String(GetUVB()) + "," + String(GetALS()) + "," + String(GetWhite()) + "," + String(GetLux()) + String(GetIR_Short()) + "," + String(GetIR_Mid()) + "," + String(GetAngle(3)) + "," + String(GetAngle(4)) + "," + LogTimeDate;
+  String Data = String(GetUVA()) + "," + String(GetUVB()) + "," + String(GetALS()) + "," + String(GetWhite()) + "," + String(GetLux()) + "," + String(GetIR_Short()) + "," + String(GetIR_Mid()) + "," + String(GetWatts()) + "," + String(GetAngle(3)) + "," + String(GetAngle(4)) + "," + LogTimeDate;
   LogStr(Data);
   Serial.println(LogTimeDate);
   delay(1000);
+}
+
+void LED_Color(unsigned long Val) {
+	int Red = 0; //Red led color
+	int Green = 0;  //Green led color
+	int Blue = 0;  //Blue led color
+	int Lum = 0;  //Luminosity
+
+	//Parse all values from single Val
+	Blue = Val & 0xFF;
+	Green = (Val >> 8) & 0xFF;
+	Red = (Val >> 16) & 0xFF;
+	Lum = (Val >> 24) & 0xFF;
+	//  Lum = 255 - Lum; //Invert since LEDs are open drain
+
+	analogWrite(RedLED, 255 - (Red * Lum)/0xFF);
+	analogWrite(GreenLED, 255 - (Green * Lum)/0xFF);
+	analogWrite(BlueLED, 255 - (Blue * Lum)/0xFF);
 }
 
 void GetTime() {
@@ -76,6 +134,13 @@ void GetTime() {
 	// DateTime TimeStamp = RTC.now();
 	// LogTimeDate = String(TimeStamp.year()) + "/" + String(TimeStamp.month()) + "/" + String(TimeStamp.day()) + " " + String(TimeStamp.hour()) + ":" + String(TimeStamp.minute()) + ":" + String(TimeStamp.second());  
 	LogTimeDate = RTC.GetTime(0);
+}
+
+float GetWatts() 
+{
+	float Val = adc.GetVoltage();
+	Serial.println(Val, 9); //DEBUG!
+	return Val/KippAndZonenConv;
 }
 
 void InitLogFile(){
@@ -90,7 +155,7 @@ void InitLogFile(){
     }
     (FileName + NumString + ".txt").toCharArray(FileNameC, 11);
   
-    LogStr("UVA, UVB, ALS, White, Lux [lx], IR Short, IR Mid, Roll [deg], Pitch [deg], Time [UTC]"); 
+    LogStr("UVA, UVB, ALS, White, Lux [lx], IR Short, IR Mid, KippAndZonen [W/m^2], Roll [deg], Pitch [deg], Time [UTC]"); 
 }
 
 int LogStr(String Val) {
@@ -127,6 +192,7 @@ void SDTest() {
 
 	if (!SD.begin(SD_CS)) {
 		Serial.println("SD Failed!");
+		GlobalError = true;
   	}
 
 	String FileNameTest = "HWTest";
@@ -156,7 +222,7 @@ void SDTest() {
 	for(int i = 0; i < RandLength - 1; i++){ //Test random value string
 	  if(TestDigits[i] != RandDigits[i]) {
 	    // SDError = true;
-	    // GlobalError = true;
+	    GlobalError = true;
 	  }
 	}
 	}
