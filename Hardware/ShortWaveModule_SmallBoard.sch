@@ -3079,14 +3079,14 @@ SD003-151-001:
 </device>
 </devices>
 </deviceset>
-<deviceset name="LTC2054" prefix="U">
-<description>&lt;b&gt;LTC2054&lt;/b&gt; -Single Micropower Zero Drift Op-Amp
+<deviceset name="LTC2050">
+<description>&lt;b&gt;LTC2050&lt;/b&gt; -Single Micropower Zero Drift Op-Amp
  
 &lt;p&gt;Characteristics:
 &lt;ul&gt;
-&lt;li&gt;Vs: 2.7 ~ 6V (2.7 ~ +/- 5.5V for LTC2054HV) &lt;/li&gt;
-&lt;li&gt;Iq: 175uA &lt;/li&gt;
-&lt;li&gt; GBP: 500kHz &lt;/li&gt;
+&lt;li&gt;Vs: 2.7 ~ 6V (1.35 ~ +/- 5.5V for LTC2054HV) &lt;/li&gt;
+&lt;li&gt;Iq: 1mA &lt;/li&gt;
+&lt;li&gt; GBP: 3MHz &lt;/li&gt;
 &lt;li&gt;PSSR: 130dB &lt;/li&gt;
 &lt;li&gt;CMMR: 130dB&lt;/li&gt;
 &lt;li&gt;Operating Temperature: -40°C to 85°C&lt;/li&gt;
@@ -3095,12 +3095,12 @@ SD003-151-001:
  
 &lt;p&gt;Digikey: &lt;br&gt;
 &lt;ul&gt;
-&lt;a href = "https://www.digikey.com/scripts/DkSearch/dksus.dll?Detail&amp;itemSeq=258611552&amp;uq=636603257096973101"&gt; LTC2054CS5#TRPBFCT-ND &lt;/a&gt;&lt;br/&gt;
-&lt;a href = "https://www.digikey.com/product-detail/en/linear-technology-analog-devices/LTC2054HVIS5-TRMPBF/LTC2054HVIS5-TRMPBFCT-ND/3830416"&gt; LTC2054HVIS5#TRMPBFCT-ND (High Voltage Variant)&lt;/a&gt;&lt;br/&gt;
+&lt;a href = "https://www.digikey.com/product-detail/en/linear-technology-analog-devices/LTC2050IS6-TRMPBF/LTC2050IS6-TRMPBFCT-ND/4729352"&gt;LTC2050IS6#TRMPBFCT-ND &lt;/a&gt;&lt;br/&gt;
+&lt;a href = "https://www.digikey.com/product-detail/en/linear-technology-analog-devices/LTC2050HVIS5-TRPBF/LTC2050HVIS5-TRPBFCT-ND/8603412"&gt; LTC2050HVIS5#TRPBFCT-ND (High Voltage Variant)&lt;/a&gt;&lt;br/&gt;
 &lt;/ul&gt;
 &lt;/p&gt;</description>
 <gates>
-<gate name="G$1" symbol="OPAMP" x="-5.08" y="0"/>
+<gate name="G$1" symbol="OPAMP" x="0" y="0"/>
 </gates>
 <devices>
 <device name="" package="SOT23-5">
@@ -3113,16 +3113,16 @@ SD003-151-001:
 </connects>
 <technologies>
 <technology name="">
-<attribute name="DIGIKEY" value="LTC2054CS5#TRPBFCT-ND" constant="no"/>
-<attribute name="DISP" value="LTC2054" constant="no"/>
+<attribute name="DIGIKEY" value="LTC2050IS6#TRMPBFCT-ND" constant="no"/>
+<attribute name="DISP" value="LTC2050" constant="no"/>
 <attribute name="MF" value="LT" constant="no"/>
-<attribute name="MPN" value="LTC2054CS5#TRPBF" constant="no"/>
+<attribute name="MPN" value="LTC2050IS6#TRMPBF" constant="no"/>
 </technology>
 <technology name="HV">
-<attribute name="DIGIKEY" value="LTC2054HVIS5#TRMPBFCT-ND" constant="no"/>
-<attribute name="DISP" value="LTC2054HV" constant="no"/>
+<attribute name="DIGIKEY" value="LTC2050HVIS5#TRPBFCT-ND" constant="no"/>
+<attribute name="DISP" value="LTC2050HV" constant="no"/>
 <attribute name="MF" value="LT" constant="no"/>
-<attribute name="MPN" value="LTC2054HVIS5#TRMPBF" constant="no"/>
+<attribute name="MPN" value="LTC2050HVIS5#TRPBF" constant="no"/>
 </technology>
 </technologies>
 </device>
@@ -4190,8 +4190,8 @@ Standard 6 pin header for AVR programming</description>
 <wire x1="1.473" y1="0.983" x2="1.473" y2="-0.983" width="0.0508" layer="39"/>
 <wire x1="1.473" y1="-0.983" x2="-1.473" y2="-0.983" width="0.0508" layer="39"/>
 <wire x1="-1.473" y1="-0.983" x2="-1.473" y2="0.983" width="0.0508" layer="39"/>
-<smd name="1" x="-0.85" y="0" dx="1.1" dy="1" layer="1"/>
-<smd name="2" x="0.85" y="0" dx="1.1" dy="1" layer="1"/>
+<smd name="1" x="-0.85" y="0" dx="1" dy="1" layer="1"/>
+<smd name="2" x="0.85" y="0" dx="1" dy="1" layer="1"/>
 <text x="0" y="1.397" size="0.6096" layer="25" font="vector" ratio="15" align="center">&gt;NAME</text>
 <text x="0" y="-1.397" size="0.6096" layer="27" font="vector" ratio="15" align="center">&gt;VALUE</text>
 <rectangle x1="0.4318" y1="-0.4318" x2="0.8382" y2="0.4318" layer="21"/>
@@ -7373,17 +7373,35 @@ Source: AVX .. aphvc.pdf</description>
 <attribute name="MPN" value="RC0603FR-0710KL" constant="no"/>
 <attribute name="VALUE_PART" value="10k" constant="no"/>
 </technology>
+<technology name="10M">
+<attribute name="DIGIKEY" value="311-10.0MHRCT-ND" constant="no"/>
+<attribute name="MF" value="Yageo" constant="no"/>
+<attribute name="MPN" value="RC0603FR-0710ML" constant="no"/>
+<attribute name="VALUE_PART" value="10M" constant="no"/>
+</technology>
 <technology name="180K">
 <attribute name="DIGIKEY" value="311-180KHRTR-ND" constant="no"/>
 <attribute name="MF" value="Yageo" constant="no"/>
 <attribute name="MPN" value="RC0603FR-07180KL" constant="no"/>
 <attribute name="VALUE_PART" value="180k" constant="no"/>
 </technology>
+<technology name="1K">
+<attribute name="DIGIKEY" value="311-1KLDCT-ND" constant="no"/>
+<attribute name="MF" value="Yageo" constant="no"/>
+<attribute name="MPN" value="AC0603FR-071KL" constant="no"/>
+<attribute name="VALUE_PART" value="1k" constant="no"/>
+</technology>
 <technology name="27">
 <attribute name="DIGIKEY" value="311-27.0HRCT-ND" constant="no"/>
 <attribute name="MF" value="Yageo" constant="no"/>
 <attribute name="MPN" value="RC0603FR-0727RL" constant="no"/>
 <attribute name="VALUE_PART" value="27" constant="no"/>
+</technology>
+<technology name="3.3M">
+<attribute name="DIGIKEY" value="RMCF0603FT3M30CT-ND" constant="no"/>
+<attribute name="MF" value="Stackpole" constant="no"/>
+<attribute name="MPN" value="RMCF0603FT3M30" constant="no"/>
+<attribute name="VALUE_PART" value="3.3M" constant="no"/>
 </technology>
 <technology name="330">
 <attribute name="DIGIKEY" value="311-330HRCT-ND" constant="no"/>
@@ -9327,8 +9345,8 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="FRAME1" library="frames" library_urn="urn:adsk.eagle:library:229" deviceset="FRAME_A_L" device=""/>
 <part name="U$9" library="bschulz" deviceset="PHOTODIODE" device="VEMD1060" value="PHOTODIODEVEMD1060"/>
 <part name="U$10" library="bschulz" deviceset="PHOTODIODE" device="SD003-151-001"/>
-<part name="U$11" library="bschulz" deviceset="LTC2054" device="" technology="HV"/>
-<part name="U$12" library="bschulz" deviceset="LTC2054" device="" technology="HV"/>
+<part name="U$11" library="bschulz" deviceset="LTC2050" device="" value="LTC2050"/>
+<part name="U$12" library="bschulz" deviceset="LTC2050" device="" value="LTC2050"/>
 <part name="R15" library="bschulz_passives" deviceset="R-EU_" device="R0603" value="1k"/>
 <part name="C13" library="bschulz_passives" deviceset="C-EU" device="C0603" value="0.15uF"/>
 <part name="R16" library="bschulz_passives" deviceset="R-EU_" device="R0603" value="47k"/>
@@ -9379,6 +9397,8 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="GND5" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="JP2" library="SparkFun-Jumpers" library_urn="urn:adsk.eagle:library:528" deviceset="JUMPER-SMT_2_NO" device="_SILK" package3d_urn="urn:adsk.eagle:package:39279/1"/>
 <part name="R2" library="bschulz_passives" deviceset="R-EU_" device="R0603" technology="10K" value="10k"/>
+<part name="R3" library="bschulz_passives" deviceset="R-EU_" device="R0603" technology="10K" value="10k"/>
+<part name="R4" library="bschulz_passives" deviceset="R-EU_" device="R0603" technology="10K" value="10k"/>
 </parts>
 <sheets>
 <sheet>
@@ -9532,6 +9552,8 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <attribute name="NAME" x="73.66" y="167.64" size="1.778" layer="95" font="vector" rot="R180"/>
 </instance>
 <instance part="R2" gate="G$1" x="71.12" y="175.26" rot="R180"/>
+<instance part="R3" gate="G$1" x="60.96" y="121.92" rot="R90"/>
+<instance part="R4" gate="G$1" x="76.2" y="121.92" rot="R90"/>
 </instances>
 <busses>
 </busses>
@@ -9743,6 +9765,18 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="76.2" y1="175.26" x2="81.28" y2="175.26" width="0.1524" layer="91"/>
 <label x="78.74" y="175.26" size="1.778" layer="95" ratio="15"/>
 </segment>
+<segment>
+<pinref part="R4" gate="G$1" pin="2"/>
+<wire x1="76.2" y1="127" x2="76.2" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="76.2" y1="129.54" x2="81.28" y2="129.54" width="0.1524" layer="91"/>
+<label x="76.2" y="129.54" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="R3" gate="G$1" pin="2"/>
+<wire x1="60.96" y1="127" x2="60.96" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="60.96" y1="129.54" x2="66.04" y2="129.54" width="0.1524" layer="91"/>
+<label x="60.96" y="129.54" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="GND" class="0">
 <segment>
@@ -9932,6 +9966,11 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="193.04" y1="144.78" x2="200.66" y2="144.78" width="0.1524" layer="91"/>
 <label x="195.58" y="144.78" size="1.778" layer="95"/>
 </segment>
+<segment>
+<pinref part="R4" gate="G$1" pin="1"/>
+<wire x1="76.2" y1="116.84" x2="68.58" y2="116.84" width="0.1524" layer="91"/>
+<label x="66.04" y="116.84" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="SCL" class="0">
 <segment>
@@ -9958,6 +9997,11 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pinref part="J2" gate="G$1" pin="1"/>
 <wire x1="193.04" y1="142.24" x2="200.66" y2="142.24" width="0.1524" layer="91"/>
 <label x="195.58" y="142.24" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="R3" gate="G$1" pin="1"/>
+<wire x1="60.96" y1="116.84" x2="53.34" y2="116.84" width="0.1524" layer="91"/>
+<label x="50.8" y="116.84" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="SCL_EXT_HV" class="0">
