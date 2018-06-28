@@ -3,7 +3,7 @@
 <eagle version="9.0.1">
 <drawing>
 <settings>
-<setting alwaysvectorfont="yes"/>
+<setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
 <grid distance="50" unitdist="mil" unit="mm" style="lines" multiple="1" display="no" altdistance="5" altunitdist="mil" altunit="mm"/>
@@ -170,8 +170,8 @@
 <text x="37.973" y="9.271" size="0.8128" layer="52" font="vector" ratio="15" rot="MR0" align="center">SDA</text>
 <text x="38.1" y="11.811" size="0.8128" layer="52" font="vector" ratio="15" rot="MR0" align="center">Vin</text>
 <text x="37.973" y="14.478" size="0.8128" layer="52" font="vector" ratio="15" rot="MR0" align="center">GND</text>
-<text x="34.163" y="10.541" size="0.8128" layer="52" font="vector" ratio="15" rot="SMR270" align="center">3.3v~5v</text>
-<text x="32.766" y="10.541" size="0.8128" layer="52" font="vector" ratio="15" rot="SMR270" align="center">To Logger</text>
+<text x="32.512" y="10.541" size="0.8128" layer="52" font="vector" ratio="15" rot="SMR270" align="center">3.3v~5v</text>
+<text x="31.115" y="10.541" size="0.8128" layer="52" font="vector" ratio="15" rot="SMR270" align="center">To Logger</text>
 <text x="11.557" y="4.191" size="0.8128" layer="52" font="vector" ratio="15" rot="MR0" align="center">J0</text>
 <text x="14.097" y="2.667" size="0.8128" layer="52" font="vector" ratio="15" rot="MR0" align="center">0x4A</text>
 <text x="14.097" y="1.016" size="0.8128" layer="52" font="vector" ratio="15" rot="MR0" align="center">0x4B</text>
@@ -183,6 +183,10 @@ LongWave
 Developed by 
 Northern Widget and 
 University of Minnesota</text>
+<wire x1="34.925" y1="11.049" x2="33.528" y2="12.446" width="0.254" layer="52" curve="-95.452622"/>
+<wire x1="33.528" y1="13.716" x2="34.925" y2="15.113" width="0.254" layer="52" curve="-95.452622"/>
+<text x="34.417" y="13.081" size="1.27" layer="52" font="vector" ratio="15" rot="MR180" align="center">±</text>
+<wire x1="33.528" y1="12.446" x2="33.528" y2="13.716" width="0.254" layer="52"/>
 </plain>
 <libraries>
 <library name="bschulz_passives">
@@ -792,23 +796,23 @@ Note, that not all DRC settings must be set by the manufacturer. Several can be 
 <attribute name="MF" value="TI" x="8.89" y="4.953" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="MPN" value="ADS1115IDGSR" x="8.89" y="4.953" size="1.778" layer="27" rot="R180" display="off"/>
 </element>
-<element name="U2" library="bschulz" package="SOT23-5" value="LTC2054HV" x="12.7" y="9.398" rot="R90">
-<attribute name="DIGIKEY" value="LTC2054HVIS5#TRMPBFCT-ND" x="12.7" y="9.398" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="DISP" value="LTC2054HV" x="12.7" y="9.398" size="1.778" layer="27" rot="R90" display="off"/>
+<element name="U2" library="bschulz" package="SOT23-5" value="LTC2050HV" x="12.7" y="9.398" rot="R90">
+<attribute name="DIGIKEY" value="LTC2050HVIS5#TRPBFCT-ND" x="12.7" y="9.398" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="DISP" value="LTC2050HV" x="12.7" y="9.398" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="MF" value="LT" x="12.7" y="9.398" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="MPN" value="LTC2054HVIS5#TRMPBF" x="12.7" y="9.398" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="MPN" value="LTC2050HVIS5#TRPBF" x="12.7" y="9.398" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
-<element name="U3" library="bschulz" package="SOT23-5" value="LTC2050HV" x="12.7" y="12.827" rot="R90">
-<attribute name="DIGIKEY" value="LTC2050HVIS5#TRPBFCT-ND" x="12.7" y="12.827" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="DISP" value="LTC2050HV" x="12.7" y="12.827" size="1.778" layer="27" rot="R90" display="off"/>
+<element name="U3" library="bschulz" package="SOT23-5" value="LTC2054" x="12.7" y="12.827" rot="R90">
+<attribute name="DIGIKEY" value="LTC2054HS5#TRMPBFCT-ND" x="12.7" y="12.827" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="DISP" value="LTC2054" x="12.7" y="12.827" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="MF" value="LT" x="12.7" y="12.827" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="MPN" value="LTC2050HVIS5#TRPBF" x="12.7" y="12.827" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="MPN" value="LTC2054HS5#TRMPBF" x="12.7" y="12.827" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
-<element name="U4" library="bschulz" package="SOT23-5" value="LTC2050HV" x="5.461" y="9.398" rot="R90">
-<attribute name="DIGIKEY" value="LTC2050HVIS5#TRPBFCT-ND" x="5.461" y="9.398" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="DISP" value="LTC2050HV" x="5.461" y="9.398" size="1.778" layer="27" rot="R90" display="off"/>
+<element name="U4" library="bschulz" package="SOT23-5" value="LTC2054" x="5.461" y="9.398" rot="R90">
+<attribute name="DIGIKEY" value="LTC2054HS5#TRMPBFCT-ND" x="5.461" y="9.398" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="DISP" value="LTC2054" x="5.461" y="9.398" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="MF" value="LT" x="5.461" y="9.398" size="1.778" layer="27" rot="R90" display="off"/>
-<attribute name="MPN" value="LTC2050HVIS5#TRPBF" x="5.461" y="9.398" size="1.778" layer="27" rot="R90" display="off"/>
+<attribute name="MPN" value="LTC2054HS5#TRMPBF" x="5.461" y="9.398" size="1.778" layer="27" rot="R90" display="off"/>
 </element>
 <element name="U8" library="bschulz" package="SOT23-6L" value="MAX6070AAUT18" x="25.273" y="13.589" rot="R180">
 <attribute name="DIGIKEY" value="MAX6070BAUT18+TCT-ND" x="25.273" y="13.589" size="1.778" layer="27" rot="R180" display="off"/>
