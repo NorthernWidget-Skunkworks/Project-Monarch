@@ -6,7 +6,7 @@
 "10","10k","R-EU_10KR0603","R0603","R6, R7, R8, R11, R12, R13, R14, R15, R16, R18","RESISTOR, European symbol","P10.0KHCT-ND","","Panasonic","ERJ-3EKF1002V","","","10k",
 "1","10k","R-EU_P10KR0603","R0603","R17","RESISTOR, European symbol","P10KDBCT-ND","","Panasonic ","ERA-3AEB103V","","","10k",
 "1","10k","R-EU_P10KR0603","R0603","R5","RESISTOR, European symbol","P10KDBCT-ND","","Panasonic","ERA-3AEB103V","","","10k",
-"1","10k","THERMISTOR10K","R0603","RT1","Thermistor","P10KDBCT-ND ","","Panasonic","ERA-3AEB103V","","","",
+"1","10k","THERMISTOR10K","R0603","RT1","Thermistor","490-16279-1-ND","","Murata","NCU18XH103F60RB","","","",
 "1","10uF","C-EU10UFC0805","C0805","C1","CAPACITOR, European symbol","490-6473-6-ND","","Murata","GRM21BR61C106KE15K","","","",
 "4","1k","R-EU_P1KR0603","R0603","R1, R2, R9, R10","RESISTOR, European symbol","P1.0KDBCT-ND","","Panasonic","ERA-3AEB102V","","","1k",
 "4","1uF","C-EU1UFC0603","C0603","C6, C7, C13, C15","CAPACITOR, European symbol","1276-6524-1-ND","","Samsung","1276-6524-1-ND","","","",
