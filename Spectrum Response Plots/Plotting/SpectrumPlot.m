@@ -1,12 +1,20 @@
 
 figure(1)
-semilogx(VEML6030WhiteResponse.x, VEML6030WhiteResponse.Curve1)
+% semilogx(VEML6030WhiteResponse.x, VEML6030WhiteResponse.Curve1)
+% hold on
+% semilogx(VEML6075UVResponse.x, VEML6075UVResponse.UVA)
+% semilogx(VEML6075UVResponse.x, VEML6075UVResponse.UVB)
+% semilogx(VEML6030FilteredResponse.x, VEML6030FilteredResponse.Curve1)
+% semilogx(IRMidWaveResponse.x, IRMidWaveResponse.Curve1./0.9571)
+% semilogx(IRShortWaveResponse.x, IRShortWaveResponse.Curve1./0.5654)
+
+plot(VEML6030WhiteResponse.x, VEML6030WhiteResponse.Curve1)
 hold on
-semilogx(VEML6075UVResponse.x, VEML6075UVResponse.UVA)
-semilogx(VEML6075UVResponse.x, VEML6075UVResponse.UVB)
-semilogx(VEML6030FilteredResponse.x, VEML6030FilteredResponse.Curve1)
-semilogx(IRMidWaveResponse.x, IRMidWaveResponse.Curve1./0.9571)
-semilogx(IRShortWaveResponse.x, IRShortWaveResponse.Curve1./0.5654)
+plot(VEML6075UVResponse.x, VEML6075UVResponse.UVA)
+plot(VEML6075UVResponse.x, VEML6075UVResponse.UVB)
+plot(VEML6030FilteredResponse.x, VEML6030FilteredResponse.Curve1)
+plot(IRMidWaveResponse.x, IRMidWaveResponse.Curve1./0.9571)
+plot(IRShortWaveResponse.x, IRShortWaveResponse.Curve1./0.5654)
 
 % plot(ApogeeSP110Response.x, ApogeeSP110Response.Curve1)
 
@@ -15,7 +23,7 @@ legend('WhiteBroad','UVA','UVB','WhiteFilt','IR-Mid','IR-Short')
 
 ylabel('Spectral Sensitivity');
 xlabel('Wavelength [nm]');
-axis([250, 2000, 0, 1.2]);
+axis([250, 1000, 0, 1.2]);
 xtickangle(45);
 
 SamplePoints = linspace(200, 5000, 1000);
