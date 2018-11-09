@@ -1,6 +1,7 @@
 //Dyson_Driver_ShortWave.ino
 #include "SlowSoftI2CMaster.h"
 #include "WireS.h"
+// #include <EEPROM.h> //DEBUG!
 //Commands
 #define CONF_CMD 0x00
 #define ALS_CMD 0x04
@@ -30,6 +31,9 @@
 #define LOW_LIM_VIS 10000  //Lower limit to the auto ranging of the VEML6030
 #define HIGH_LIM_VIS 55000 //Upper limit to the auto ranging of the VEML6030
 
+#define ADR_SEL_PIN 7 //Digital pin 7 is used to test which device address should be used
+// #define ADR_ALT 0x41 //Alternative device address
+
 //Global values for gain and int time of visable light sensor
 uint8_t Gain = 0;
 unsigned int IntTime = 0;
@@ -44,11 +48,12 @@ float c = 2.46;
 float d = 0.63;
 
 volatile uint8_t ADR = 0x40; //Use arbitraty address, change using generall call??
+const uint8_t ADR_Alt = 0x41; //Alternative device address  //WARNING! When a #define is used instead, problems are caused
 
 unsigned int Config = 0; //Global config value
 
 uint8_t Reg[26] = {0}; //Initialize registers
-bool StartSample = false; //Flag used to start a new converstion 
+bool StartSample = true; //Flag used to start a new converstion, make a conversion on startup
 const unsigned int UpdateRate = 5; //Rate of update
 
 SlowSoftI2CMaster si = SlowSoftI2CMaster(PIN_B2, PIN_A7, true);  //Initialize software I2C
@@ -58,9 +63,12 @@ volatile uint8_t RegID = 0; //Used to denote which register will be read from
 volatile bool RepeatedStart = false; //Used to show if the start was repeated or not
 
 void setup() {
-  Serial.begin(115200); //DEBUG!
-  Serial.println("begin"); //DEBUG!
+  // Serial.begin(115200); //DEBUG!
+  // Serial.println("begin"); //DEBUG!
+  pinMode(ADR_SEL_PIN, INPUT_PULLUP);
+  if(!digitalRead(ADR_SEL_PIN)) ADR = ADR_Alt; //If solder jumper is bridged, use alternate address //DEBUG!
   Wire.begin(ADR);  //Begin slave I2C
+  // EEPROM.write(0, ADR);
   InitVEML(0x48); //Init Vis (VEML6030)
   InitVEML(0x10); //Init UV (VEML6075)
   InitADC(); //Init ADC (ADS1115)
