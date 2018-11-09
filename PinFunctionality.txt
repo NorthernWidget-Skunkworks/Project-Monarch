@@ -1,0 +1,20 @@
+
+Pin Functionality Dyson Short-Wave
+
+Pin		Function
+D0		Lux Int, Active Low
+D1		Adc Int, Active Low
+D7		Slave Address Select 
+D3		Software SCL
+D2		Software SDA
+
+Function Explanation:
+
+Lux Int:
+Lux sensor (VEML6030) can be configured to output an interrupt for certian situations, this pin is native high (pull up), and it pulled low by the Lux sensor if an interrupt is triggered. Interrupt trigger must be configured by user.
+
+Adc Int:				
+ADC (ADS1115) can be configured to output an interrupt for certian situations, this pin is native high (pull up), and it pulled low by the ADC sensor if an interrupt is triggered (generally used to indicate a finished conversion). Interrupt trigger must be configured by user.
+
+Slave Address Select:
+This pin is used to select I2C device (if the device is the "top" or "bottom" device). This pin must be pulled up internally, and is natively floating (can be pulled up internally). This pin is an input, when the solder jumper on the board (J1) is jumped, this pin is pulled low, indicating the alternate device address should be used.  
