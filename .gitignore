@@ -43,4 +43,13 @@ eagle.epf
 *.lck
 
 
+#LTSPice Files
+*.net
+*.op
+*.raw
+*.lnk
+*.log
+*.ipynd_checkpoints
+*checkpoint.ipynb
+
 ~\$*\.SLDPRT

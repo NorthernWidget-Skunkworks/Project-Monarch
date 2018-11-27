@@ -30,7 +30,7 @@ Distributed as-is; no warranty is given.
 #define YAXIS 0x34
 #define ZAXIS 0x36
 
-#define ADR 0x40  //Address of Pyranometer
+#define ADR 0x41  //Address of Pyranometer
 #define ACCEL_ADR 0x1D //Address of accelerometer (ADXL343)
 
 const float LuxRes = 0.0036; //Min resolution of lux measurement
@@ -41,6 +41,8 @@ const float C = 1.019153E-05;
 const float D = 9.093712E-07;
 
 void setup() {
+  pinMode(19, OUTPUT); //Setup power switch pin
+  digitalWrite(19, LOW); //Turn on power on Margay v1
   Wire.begin();
   Serial.begin(115200);
   Serial.println("Welcome to the Machine...");
