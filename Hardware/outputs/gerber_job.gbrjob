@@ -1,0 +1,24 @@
+{
+    "Header": {
+        "Comment": "All values are metric (mm)",
+        "CreationDate": "2018-11-28T15:46:31Z",
+        "GenerationSoftware": {
+            "Application": "EAGLE",
+            "Vendor": "Autodesk",
+            "Version": "9.2.1"
+        },
+        "Part": "Single"
+    },
+    "Overall": {
+        "BoardThickness": 1.671119,
+        "LayerNumber": 2,
+        "Name": {
+            "ProjectId": "LongWaveModule"
+        },
+        "Owner": "Bobby Schulz <schu3119@umn.edu>",
+        "Size": {
+            "X": 39.35,
+            "Y": 16.942
+        }
+    }
+}
