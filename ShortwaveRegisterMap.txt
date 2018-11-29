@@ -1,0 +1,40 @@
+
+ADR		Contents 
+----------------
+0x00	Control
+0x01	Reserved
+0x02	UVA0
+0x03	UVA1
+0x04	UVA2
+0x05	UVA3
+0x06	UVB0
+0x07	UVB1
+0x08	UVB2
+0x09	UVB3
+0x0A	Reserved
+0x0B	ALS0
+0x0C	ALS1
+0x0D	White0
+0x0E	White1
+0x0F	Reserved
+0x10 	LuxMul0
+0x11	LuxMul1
+0x12	
+0x13	ADC0_0
+0x14	ADC0_1
+0x15	ADC1_0
+0x16	ADC1_1
+0x17	ADC2_0
+0x18	ADC2_1
+0x19	Reserved
+0x1A	Reserved
+
+Register Info
+
+Control
+
+Bit		POR		Function
+------------------------
+7		0		Ready flag (1 if not converting (done), starts con)
+6		0		SingleShot/continuous (0, continuous, 1 single shot)
+ 		
