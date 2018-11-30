@@ -3,6 +3,9 @@
 #include "WireS.h"
 // #include <EEPROM.h> //DEBUG!
 //Commands
+
+#define CTRL 0x00  //Define location of onboard control/confiuration register
+
 #define CONF_CMD 0x00
 #define ALS_CMD 0x04
 #define WHITE_CMD 0x05
@@ -50,11 +53,12 @@ float d = 0.63;
 volatile uint8_t ADR = 0x40; //Use arbitraty address, change using generall call??
 const uint8_t ADR_Alt = 0x41; //Alternative device address  //WARNING! When a #define is used instead, problems are caused
 
-unsigned int Config = 0; //Global config value
+uint8_t Config = 0; //Global config value
 
 uint8_t Reg[26] = {0}; //Initialize registers
 bool StartSample = true; //Flag used to start a new converstion, make a conversion on startup
-const unsigned int UpdateRate = 5; //Rate of update
+// const unsigned int UpdateRate = 5; //Rate of update
+const unsigned int UpdateRate[] = {5, 10, 60, 300}; //FIX with better numbers! 
 
 SlowSoftI2CMaster si = SlowSoftI2CMaster(PIN_B2, PIN_A7, true);  //Initialize software I2C
 
@@ -65,6 +69,7 @@ volatile bool RepeatedStart = false; //Used to show if the start was repeated or
 void setup() {
   // Serial.begin(115200); //DEBUG!
   // Serial.println("begin"); //DEBUG!
+  Reg[CTRL] = 0x00; //Set Config to POR value
   pinMode(ADR_SEL_PIN, INPUT_PULLUP);
   if(!digitalRead(ADR_SEL_PIN)) ADR = ADR_Alt; //If solder jumper is bridged, use alternate address //DEBUG!
   Wire.begin(ADR);  //Begin slave I2C
@@ -85,11 +90,19 @@ void setup() {
 }
 
 void loop() {
-	static unsigned int Count = 0; //Counter to determine update rate
+	// static unsigned int Count = 0; //Counter to determine update rate
+	// uint8_t Ctrl = Reg[CTRL]; //Store local value to improve efficiency
+	uint8_t UpdateRateBits = Reg[CTRL] & 0x03; 
+	static unsigned long Timeout = millis() % (UpdateRate[3]*1000); //Take mod with longest update rate 
+
 	if(StartSample == true) {
+		Reg[CTRL] = Reg[CTRL] &= 0x7F; //Clear ready flag
+		// Config = Reg[CTRL]; //Update local register val
 		//Read new values in
-		AutoRange_Vis();  //Run auto range
-		delay(800); //Wait for new sample
+		if(BitRead(Reg[CTRL], 2) == 0) {  //Only auto range if configured in Ctrl register 
+			AutoRange_Vis();  //Run auto range
+			delay(800); //Wait for new sample
+		}
 		SplitAndLoad(0x0B, GetALS()); //Load ALS value
 		SplitAndLoad(0x0D, GetWhite()); //Load white value
 		SplitAndLoad(0x02, long(GetUV(0))); //Load UVA
@@ -99,12 +112,26 @@ void loop() {
 		SplitAndLoad(0x15, GetADC(1));
 		SplitAndLoad(0x17, GetADC(2));
 
+		Reg[CTRL] = Reg[CTRL] |= 0x80; //Set ready flag
 		StartSample = false; //Clear flag when new values updated  
 	}
-	if(Count++ == UpdateRate) {  //Fix update method??
+
+	//Make sure there is not a protnetial logic problem when changing update rate!!!!!!
+	if(millis() % (UpdateRate[3]*1000) > UpdateRate[UpdateRateBits]*1000) {  
 		StartSample = true; //Set flag if number of updates have rolled over 
-		Count = 0;
+		Timeout = millis() % (UpdateRate[3]*1000); //Restart timer
 	}
+
+	if(BitRead(Reg[CTRL], 3) == 1) {  //If manual autorange is commanded
+		AutoRange_Vis(); //Call autorange
+		delay(800); //Wait for new data
+		Reg[CTRL] &= 0xF7; //Clear auto range bit to inform user autorange is complete
+	}
+
+	// if(Reg[CTRL] != Config) {
+	// 	Config = Reg[CTRL]; //Update local register 
+	// 	Timeout = millis() % (UpdateRate[3]*1000); //Reset counter if control register changes
+	// }
 	delay(100);
 }
 
@@ -357,6 +384,11 @@ uint8_t AutoRange_Vis()
 // {
 // 	return (Data >> Pos) & 0x01; 
 // }
+
+bool BitRead(uint8_t Val, uint8_t Pos) //Read the bit value at the specified position
+{
+	return (Val >> Pos) & 0x01;
+}
 
 uint8_t SendCommand(uint8_t Adr, uint8_t Command)
 {
