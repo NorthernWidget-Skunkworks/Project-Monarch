@@ -73,7 +73,7 @@ void setup() {
   pinMode(ADR_SEL_PIN, INPUT_PULLUP);
   pinMode(10, OUTPUT); //DEBUG!
   pinMode(9, OUTPUT); //DEBUG!
-  digitalWrite(10, LOW); //DEBUG!
+  digitalWrite(10, HIGH); //DEBUG!
   digitalWrite(9, LOW); //DEBUG!
   if(!digitalRead(ADR_SEL_PIN)) ADR = ADR_Alt; //If solder jumper is bridged, use alternate address //DEBUG!
   Wire.begin(ADR);  //Begin slave I2C
@@ -90,9 +90,9 @@ void setup() {
 
   si.i2c_init(); //Begin I2C master
 
-  AutoRange_Vis(); //Auto range for given light conditions
+  // AutoRange_Vis(); //Auto range for given light conditions
 	digitalWrite(9, HIGH); //DEBUG!
-	digitalWrite(10, HIGH); //DEBUG!
+	digitalWrite(10, LOW); //DEBUG!
 }
 
 void loop() {
@@ -101,10 +101,8 @@ void loop() {
 	uint8_t UpdateRateBits = Reg[CTRL] & 0x03; 
 	static unsigned long Timeout = millis() % (UpdateRate[3]*1000); //Take mod with longest update rate 
 
-	digitalWrite(10, HIGH); //DEBUG!
+	// digitalWrite(10, HIGH); //DEBUG!
 	if(StartSample == true) {
-		digitalWrite(9, HIGH); //DEBUG!
-		Reg[CTRL] = Reg[CTRL] &= 0x7F; //Clear ready flag
 
 		// Config = Reg[CTRL]; //Update local register val
 		//Read new values in
@@ -112,6 +110,8 @@ void loop() {
 			AutoRange_Vis();  //Run auto range
 			delay(800); //Wait for new sample
 		}
+		// digitalWrite(9, HIGH); //DEBUG!
+		Reg[CTRL] = Reg[CTRL] &= 0x7F; //Clear ready flag only while new vals being written
 		SplitAndLoad(0x0B, GetALS()); //Load ALS value
 		SplitAndLoad(0x0D, GetWhite()); //Load white value
 		SplitAndLoad(0x02, long(GetUV(0))); //Load UVA
@@ -130,7 +130,7 @@ void loop() {
 	if(millis() % (UpdateRate[3]*1000) - Timeout > UpdateRate[UpdateRateBits]*1000) {  
 		StartSample = true; //Set flag if number of updates have rolled over 
 		Timeout = millis() % (UpdateRate[3]*1000); //Restart timer
-		digitalWrite(10, LOW); //DEBUG!
+		// digitalWrite(10, LOW); //DEBUG!
 	}
 
 	if(BitRead(Reg[CTRL], 3) == 1) {  //If manual autorange is commanded
