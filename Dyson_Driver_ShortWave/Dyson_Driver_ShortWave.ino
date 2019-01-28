@@ -1,4 +1,5 @@
 //Dyson_Driver_ShortWave.ino
+//v0.0.0
 #include "SlowSoftI2CMaster.h"
 #include "WireS.h"
 // #include <EEPROM.h> //DEBUG!
@@ -540,4 +541,3 @@ void stopEvent()
 	StopFlag = true;
 	//End comunication
 }
-
