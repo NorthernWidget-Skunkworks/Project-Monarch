@@ -1,6 +1,8 @@
 //Dyson_Driver_ShortWave.ino
 //v0.0.0
 #include "SlowSoftI2CMaster.h"
+#include <avr/sleep.h>
+#include <avr/power.h>
 #include "WireS.h"
 // #include <EEPROM.h> //DEBUG!
 //Commands
@@ -18,10 +20,10 @@
 
 #define ADC_CONF 0x01
 #define ADC_CONV 0x00
-#define ADC0 0x4200
-#define ADC1 0x5200
-#define ADC2 0x6200
-#define ADC3 0x7200
+#define ADC0 0xC380
+#define ADC1 0xD380
+#define ADC2 0xE380
+#define ADC3 0xF380
 
 #define VIS_ADR 0x48
 #define UV_ADR 0x10
@@ -68,8 +70,8 @@ volatile uint8_t RegID = 0; //Used to denote which register will be read from
 volatile bool RepeatedStart = false; //Used to show if the start was repeated or not
 
 void setup() {
-  // Serial.begin(115200); //DEBUG!
-  // Serial.println("begin"); //DEBUG!
+  Serial.begin(115200); //DEBUG!
+  Serial.println("begin"); //DEBUG!
   Reg[CTRL] = 0x00; //Set Config to POR value
   pinMode(ADR_SEL_PIN, INPUT_PULLUP);
   pinMode(10, OUTPUT); //DEBUG!
@@ -92,8 +94,9 @@ void setup() {
   si.i2c_init(); //Begin I2C master
 
   // AutoRange_Vis(); //Auto range for given light conditions
-	digitalWrite(9, HIGH); //DEBUG!
-	digitalWrite(10, LOW); //DEBUG!
+	// digitalWrite(9, HIGH); //DEBUG!
+	// digitalWrite(10, LOW); //DEBUG!
+	while(millis() < 25); //Wait for new value after startup if required 
 }
 
 void loop() {
@@ -107,12 +110,12 @@ void loop() {
 
 		// Config = Reg[CTRL]; //Update local register val
 		//Read new values in
-		if(BitRead(Reg[CTRL], 2) == 0) {  //Only auto range if configured in Ctrl register 
-			AutoRange_Vis();  //Run auto range
-			delay(800); //Wait for new sample
-		}
+		// if(BitRead(Reg[CTRL], 2) == 1) {  //Only auto range if configured in Ctrl register 
+		// 	AutoRange_Vis();  //Run auto range
+		// 	delay(800); //Wait for new sample
+		// }
 		// digitalWrite(9, HIGH); //DEBUG!
-		Reg[CTRL] = Reg[CTRL] &= 0x7F; //Clear ready flag only while new vals being written
+		// Reg[CTRL] = Reg[CTRL] &= 0x7F; //Clear ready flag only while new vals being written //DEBUG!
 		SplitAndLoad(0x0B, GetALS()); //Load ALS value
 		SplitAndLoad(0x0D, GetWhite()); //Load white value
 		SplitAndLoad(0x02, long(GetUV(0))); //Load UVA
@@ -122,35 +125,48 @@ void loop() {
 		SplitAndLoad(0x15, GetADC(1));
 		SplitAndLoad(0x17, GetADC(2));
 
-		Reg[CTRL] = Reg[CTRL] |= 0x80; //Set ready flag
-		digitalWrite(9, LOW); //DEBUG!
+		Reg[CTRL] = Reg[CTRL] | 0x80; //Set ready flag
+		digitalWrite(10, LOW); //DEBUG!
 		StartSample = false; //Clear flag when new values updated  
 	}
 
-	//Make sure there is not a protnetial logic problem when changing update rate!!!!!!
-	if(millis() % (UpdateRate[3]*1000) - Timeout > UpdateRate[UpdateRateBits]*1000) {  
-		StartSample = true; //Set flag if number of updates have rolled over 
-		Timeout = millis() % (UpdateRate[3]*1000); //Restart timer
-		// digitalWrite(10, LOW); //DEBUG!
-	}
+	//Sleep after loading registers 
+	ADCSRA &= ~(1<<ADEN); //Disable ADC
+	SPCR   &= ~_BV(SPE); //Disable SPI
+	//    PRR = 0xFF;
+		set_sleep_mode(SLEEP_MODE_PWR_DOWN);  
 
-	if(BitRead(Reg[CTRL], 3) == 1) {  //If manual autorange is commanded
-		AutoRange_Vis(); //Call autorange
-		delay(800); //Wait for new data
-		Reg[CTRL] &= 0xF7; //Clear auto range bit to inform user autorange is complete
-	}
+	sleep_enable();
+	sleep_mode(); //Waits here while in sleep mode
+
+	sleep_disable(); //Wake up
+	TWSCRA = bit(TWEN);  //Re-enable I2C
+	Wire.begin(ADR);
+
+	//Make sure there is not a protnetial logic problem when changing update rate!!!!!!
+	// if(millis() % (UpdateRate[3]*1000) - Timeout > UpdateRate[UpdateRateBits]*1000) {  
+	// 	StartSample = true; //Set flag if number of updates have rolled over 
+	// 	Timeout = millis() % (UpdateRate[3]*1000); //Restart timer
+	// 	// digitalWrite(10, LOW); //DEBUG!
+	// }
+
+	// if(BitRead(Reg[CTRL], 3) == 1) {  //If manual autorange is commanded
+	// 	AutoRange_Vis(); //Call autorange
+	// 	delay(800); //Wait for new data
+	// 	Reg[CTRL] &= 0xF7; //Clear auto range bit to inform user autorange is complete
+	// }
 
 	// if(Reg[CTRL] != Config) {
 	// 	Config = Reg[CTRL]; //Update local register 
 	// 	Timeout = millis() % (UpdateRate[3]*1000); //Reset counter if control register changes
 	// }
-	delay(100);
+	delay(1);
 }
 
 uint8_t InitVEML(uint8_t Adr) 
 {
 	uint8_t CMD = 0; 
-	if(Adr == 0x48) CMD = 0x23;
+	if(Adr == 0x48) CMD = 0x13;  //DEBUG! Replace w/0x23 or 0x13 
 	else CMD = 0;
     si.i2c_start((Adr << 1) | WRITE);
     si.i2c_write(0x00);
@@ -172,7 +188,7 @@ unsigned int GetADC(unsigned int Num)
 {
 	unsigned int ADC_Config = ADC0 | (Num << 12); //Use to select which ADC to get data from
 	WriteWord_LE(ADC_ADR, ADC_CONF, ADC_Config); //Setup registers
-	delay(300);  //Wait for next sample to be read
+	delay(25);  //Wait for next sample to be read
 	return ReadWord_LE(ADC_ADR, ADC_CONV); //Read from register
 }
 
@@ -221,7 +237,7 @@ unsigned int GetLuxGain()
 uint8_t AutoRange_Vis() 
 {	
 	// WriteWord(VIS_ADR, CONF_CMD, (GainValsVis[0] << 11) | (IntTimeValsVis[0] << 6)); //Write min gain vals
-	WriteWord(VIS_ADR, CONF_CMD, 0x1300);
+	WriteWord(VIS_ADR, CONF_CMD, 0x1300); //DEBUG! Replace w/ 0x1300
 	delay(800); //Wait for new sample
 	unsigned int Val = GetALS();
 	Serial.print("Val = "); Serial.println(Val); //DEBUG!
@@ -235,9 +251,11 @@ uint8_t AutoRange_Vis()
 	unsigned int ValTest = 0;
 	uint8_t GainTemp = 0;  //Index of desired gain
 	uint8_t IntTimeTemp = 0; //Index of desired integration time
+
 	while(!InRange && IntTimeTemp < 6) {
 		ValTest = (Val*int(GainsVis[GainTemp])*(1 << int(IntTimeTemp)));
-		Serial.print("ValTest = "); Serial.println(ValTest); //DEBUG!
+		// Serial.print("Val = "); Serial.println(ValTest); //DEBUG!
+		// Serial.print("D = "); Serial.print(GainsVis[GainTemp]); Serial.print("\t"); Serial.println(IntTimeTemp);
 		if(ValTest < LOW_LIM_VIS) {
 			GainTemp++;
 		}
@@ -249,8 +267,12 @@ uint8_t AutoRange_Vis()
 		if(GainTemp == 3 && IntTimeTemp == 5) InRange = true; //Set if max value is reached 
 		if(ValTest > LOW_LIM_VIS && ValTest < HIGH_LIM_VIS) InRange = true; //Found correct gain and int vals
 	}
+	// GainTemp = 0; //DEBUG!
+	// IntTimeTemp = 0;  //DEBUG!
+	//DEBUG!
 	Serial.print(GainValsVis[GainTemp], BIN); Serial.print("\t"); Serial.println(IntTimeValsVis[IntTimeTemp], BIN);  //DEBUG!
 	WriteWord(VIS_ADR, CONF_CMD, (GainValsVis[GainTemp] << 11) | (IntTimeValsVis[IntTimeTemp] << 6));  //Write new gain value
+	Serial.print((GainValsVis[GainTemp] << 11) | (IntTimeValsVis[IntTimeTemp] << 6), HEX); //DEBUG!
 	Gain = GainsVis[GainTemp];  //Set global values
 	IntTime = pow(2, IntTimeTemp); 
 }
