@@ -25,7 +25,7 @@ void loop() {
 String Update() {
 	Init(); //DEBUG!
 	float Val1 = CMP3.GetVoltage()*(1.0e4); //Return val in uV, account for gain of amp (100 V/V)
-	return Val1 + PyroUp.GetString();
+	return Val1 + "," + PyroUp.GetString();
 }
 
 void Init() 
