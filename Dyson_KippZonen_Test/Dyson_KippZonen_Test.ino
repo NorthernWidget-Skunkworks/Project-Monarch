@@ -7,10 +7,10 @@ MCP3421 CMP3(0x6B);  //Init with addres 0x6B
 DysonSW PyroUp(UP); //Initialzie Upward facing Dyson short wave
 
 String Header = "Pyro [uV], "; //Information header
-uint8_t I2CVals[3] = {0x4A, 0x41, 0x6B}; 
-unsigned long UpdateRate = 60; //Number of seconds between readings 
+uint8_t I2CVals[3] = {0x40, 0x1D, 0x6B}; 
+unsigned long UpdateRate = 15; //Number of seconds between readings 
 
-Margay Logger(Model_0v0);
+Margay Logger(Model_1v0);
 
 void setup() {
 	Header = Header + PyroUp.GetHeader();
@@ -25,7 +25,7 @@ void loop() {
 String Update() {
 	Init(); //DEBUG!
 	float Val1 = CMP3.GetVoltage()*(1.0e4); //Return val in uV, account for gain of amp (100 V/V)
-	return Val1 + "," + PyroUp.GetString();
+	return String(Val1) + "," + PyroUp.GetString();
 }
 
 void Init() 
