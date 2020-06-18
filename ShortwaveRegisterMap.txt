@@ -37,4 +37,14 @@ Bit		POR		Function
 ------------------------
 7		0		Ready flag (1 if not converting (done), starts con)
 6		0		SingleShot/continuous (0, continuous, 1 single shot)
- 		
+
+3		0		AutoRange (Command an autorange)  //Good??
+2		0		Manual AutoRange (if 1, autorange must be triggered manually, otherwise done with each sample)
+1		0		Sample rate, 1
+0		0		Sample rate, 0	
+
+Sample Rate (Pick better values??)
+00 = 5 s
+01 = 10 s
+10 = 60 s
+11 = 300 s 		
