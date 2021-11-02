@@ -18,7 +18,7 @@ plot(IRShortWaveResponse.x, IRShortWaveResponse.Curve1./0.5654)
 
 % plot(ApogeeSP110Response.x, ApogeeSP110Response.Curve1)
 
-title('Project Dyson Sub-sensor Spectral Response');
+title('Project Monarch Sub-sensor Spectral Response');
 legend('WhiteBroad','UVA','UVB','WhiteFilt','IR-Mid','IR-Short')
 
 ylabel('Spectral Sensitivity');
@@ -36,10 +36,10 @@ IR_Mid = interp1(IRMidWaveResponse.x, IRMidWaveResponse.Curve1./0.9571, SamplePo
 IR_Short = interp1(IRShortWaveResponse.x, IRShortWaveResponse.Curve1./0.5654, SamplePoints);
 KippAndZonen = interp1(KippAndZonenCMP3Response.x, KippAndZonenCMP3Response.Curve1, SamplePoints);
 
-Dyson = 1:1000;
+Monarch = 1:1000;
 for i = 1:1000
     Data = [Broad(i), UVA(i), UVB(i), BroadFilt(i), IR_Mid(i), IR_Short(i)];
-    Dyson(i) = max(Data);
+    Monarch(i) = max(Data);
 end
 BlackBody = (2.*pi.*h.*(c.^2))./(((SamplePoints*1e-9).^5).*(exp((h.*c)./(k.*(SamplePoints*1e-9).*5800)) - 1));
 BlackMax = max(BlackBody);
@@ -47,7 +47,7 @@ BlackBody = BlackBody./BlackMax;
 
 figure(2)
 subplot(2,1,1);
-semilogx(SamplePoints, Dyson)
+semilogx(SamplePoints, Monarch)
 hold on
 semilogx(ApogeeSP110Response.x, ApogeeSP110Response.Curve1)
 semilogx(KippAndZonenCMP3Response.x, KippAndZonenCMP3Response.Curve1)
@@ -58,7 +58,7 @@ ylabel('Spectral Sensitivity');
 xlabel('Wavelength [nm]');
 
 subplot(2,1,2);
-Line1 = plot(SamplePoints, Dyson);
+Line1 = plot(SamplePoints, Monarch);
 hold on
 Line2 = plot(ApogeeSP110Response.x, ApogeeSP110Response.Curve1);
 Line3 = plot(KippAndZonenCMP3Response.x, KippAndZonenCMP3Response.Curve1);
@@ -71,7 +71,7 @@ k = 8.617e-5;
 axis([200, 3000, 0, 1.2]);
 
 title('Broadband Spectral Response, Linear');
-legend('Project Dyson', 'Kipp and Zonen CMP3', 'Apogee SP110', 'Solar Black Body');
+legend('Project Monarch', 'Kipp and Zonen CMP3', 'Apogee SP110', 'Solar Black Body');
 ylabel('Spectral Sensitivity');
 xlabel('Wavelength [nm]');
 
@@ -90,12 +90,12 @@ plot(SamplePoints_Long, IR_Long)
 % plot(SamplePoints_Long, KippAndZonen_Long)
 axis([2500, 35000, 0, 1.2]);
 title('Long Wave Spectral Response');
-legend('Project Dyson', 'Earth Black Body');
+legend('Project Monarch', 'Earth Black Body');
 ylabel('Spectral Sensitivity');
 xlabel('Wavelength [nm]');
 
 figure(4)
-semilogx(SamplePoints, Dyson)
+semilogx(SamplePoints, Monarch)
 hold on
 PeakSampleValues = [28, 34, 75, 83, 138, 285];
 for i = 1:6
@@ -104,7 +104,7 @@ for i = 1:6
 end
 axis([250, 2000, 0, 1.2]);
 xtickangle(45);
-title('Project Dyson Spectral Sample Points');
+title('Project Monarch Spectral Sample Points');
 ylabel('Spectral Sensitivity');
 xlabel('Wavelength [nm]');
 legend('Effective Response', 'Sample Peaks');

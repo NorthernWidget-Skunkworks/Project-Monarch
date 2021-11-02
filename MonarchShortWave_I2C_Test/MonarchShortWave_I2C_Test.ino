@@ -1,4 +1,4 @@
-//DysonShortWave_I2C_Test.ino
+//MonarchShortWave_I2C_Test.ino
 // #include <Arduino.h>
 #include "WireS.h"                              // I2C library for ATtiny841 (and other modern ATtinys)
 #include <SlowSoftI2CMaster.h>

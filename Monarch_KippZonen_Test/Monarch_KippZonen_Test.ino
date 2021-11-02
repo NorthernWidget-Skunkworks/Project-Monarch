@@ -1,10 +1,10 @@
 #include "Margay.h"
-#include <DysonSW.h>
+#include <MonarchSW.h>
 #include "MCP3421.h"  //Inlcude ADC lib
 
 MCP3421 CMP3(0x6B);  //Init with addres 0x6B
 
-DysonSW PyroUp(UP); //Initialzie Upward facing Dyson short wave
+MonarchSW PyroUp(UP); //Initialzie Upward facing Monarch short wave
 
 String Header = "Pyro [uV], "; //Information header
 uint8_t I2CVals[3] = {0x40, 0x1D, 0x6B}; 

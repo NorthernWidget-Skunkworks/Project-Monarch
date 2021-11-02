@@ -16,7 +16,7 @@ plot(IRS_Rel);
 plot(IRM_Rel);
 
 legend("CMP3", "Lux", "UVA", "UVB", "IR Short", "IR Mid");
-title("Relative Full Band Dyson Data");
+title("Relative Full Band Monarch Data");
 ylabel("Normalized Amplitude [0~1]");
 xlabel("Samples");
 set(gcf, 'Position', [0, 0, 1200, 500])

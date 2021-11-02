@@ -1,5 +1,5 @@
 
-Pin Functionality Dyson Short-Wave
+Pin Functionality Monarch Short-Wave
 
 Pin		Function
 D0		Lux Int, Active Low

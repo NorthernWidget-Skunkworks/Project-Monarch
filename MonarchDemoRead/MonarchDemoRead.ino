@@ -1,11 +1,11 @@
 /******************************************************************************
-DysonDemoRead.cpp
-Demo script for Dyson shortwave pyronometer interface
+MonarchDemoRead.cpp
+Demo script for Monarch shortwave pyronometer interface
 Bobby Schulz @ Northern Widget LLC
 6/13/2018
-https://github.com/NorthernWidget-Skunkworks/Project-Dyson
+https://github.com/NorthernWidget-Skunkworks/Project-Monarch
 
-This script is used to demonstrate the interface to the Dyson shortwave pyranometer module and provide 
+This script is used to demonstrate the interface to the Monarch shortwave pyranometer module and provide 
 conversions for some of the values into the appropriate human-readable units.
 
 "The laws of nature are constructed in such a way as to make the universe as interesting as possible."
@@ -76,7 +76,7 @@ void loop() {
 
 }
 
-uint8_t InitDyson() 
+uint8_t InitMonarch() 
 {
 
 }
