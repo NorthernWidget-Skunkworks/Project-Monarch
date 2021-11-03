@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5643930.svg)](https://doi.org/10.5281/zenodo.5643930)
+
 # Project-Monarch
 Designs for a small scale and low cost pyronometer operating in both the short wave and long wave spectral regions
 
